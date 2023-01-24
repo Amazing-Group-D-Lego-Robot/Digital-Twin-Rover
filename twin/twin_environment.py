@@ -3,12 +3,9 @@ from copy import deepcopy
 
 class TwinEnvironment:
     def __init__(self):
-        print("created new environment")
+        self.observed_points = []  # All points that the rover has "seen" with sensors
+        self.world = []  # All pre-programmed tris representing the world
 
     def copy(self):
         # copy function for making predictions
         return deepcopy(self)
-
-    def update(self, sensor_data, instruction):
-        # update state based upon truths
-        pass

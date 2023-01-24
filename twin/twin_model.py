@@ -23,8 +23,8 @@ class TwinModel:
         # copy function for making predictions
         return deepcopy(self)
 
-    def update(self, sensor_data, instruction):
-        # update state based upon truths
+    def update(self, sensor_data, instruction, environment):
+        # update state based upon truths and environment
         pass
 
     def predict_next(self, n=1, environment=None, instruction=None):
