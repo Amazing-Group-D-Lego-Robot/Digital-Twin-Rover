@@ -6,5 +6,5 @@ from twin.twin import TwinSystem
 class Controller:
     def __init__(self):
         print("created a new controller")
-        rover = RoverControl()
-        twin = TwinSystem()
+        self.rover = RoverControl()
+        self.twin = TwinSystem()
