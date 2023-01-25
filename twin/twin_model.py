@@ -40,7 +40,13 @@ class TwinModel:
     def update(self, sensor_data, instruction, environment):
         # update state based upon truths and environment
 
-        # TODO: Update sensors when we have a structure for them
+        if sensor_data is not None:
+            # TODO: Update sensors when we have a structure for them
+            pass
+
+        if instruction is not None:
+            # TODO: Update state with instruction when we have a structure for them
+            pass
 
         # UPDATE POSITION
         # if we are not on our first update
