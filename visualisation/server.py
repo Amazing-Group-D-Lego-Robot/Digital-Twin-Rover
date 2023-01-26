@@ -5,24 +5,26 @@ from time import sleep
 Server = UrsinaNetworkingServer("localhost", 25565)
 
 
-class TwinServer:
-    @Server.event
-    def onClientConnected(self, client):
-        print(f"{client} connected !")
-        print(f"Current clients: {Server.get_clients()}")
+@Server.event
+def onClientConnected(client):
+    print(f"{client} connected !")
+    print(f"Current clients: {Server.get_clients()}")
 
-        for _ in range(0, 10):
-            self.random_position()
-            sleep(1)
+    for _ in range(0, 10):
+        random_position()
+        sleep(1)
 
-    @Server.event
-    def onClientDisconnected(self, client):
-        print(f"{client} disconnected !")
 
-    def random_position(self):
-        position = (randint(0, 20), 0, randint(0, 20))
-        print("Position for client is", position)
-        Server.broadcast("update_pos", position)
+@Server.event
+def onClientDisconnected(client):
+    print(f"{client} disconnected !")
 
-    def check_for_response(self):
-        Server.process_net_events()
+
+def random_position():
+    position = (randint(0, 20), 0, randint(0, 20))
+    print("Position for client is", position)
+    Server.broadcast("update_pos", position)
+
+
+def check_for_response():
+    Server.process_net_events()
