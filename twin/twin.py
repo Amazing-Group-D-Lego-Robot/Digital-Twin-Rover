@@ -1,6 +1,6 @@
 # whole twin system, environment and all
 
-from visualisation.visualisation import Visualiser
+from visualisation.server import TwinServer
 
 from twin.worldstate import WorldState
 
@@ -9,7 +9,7 @@ class TwinSystem:
     def __init__(self):
         print("created a new twin system")
 
-        self.vis = Visualiser()
+        self.twin_server = TwinServer()
         self.worldstate = WorldState()
 
     def update(self, sensor_info, instruction):
