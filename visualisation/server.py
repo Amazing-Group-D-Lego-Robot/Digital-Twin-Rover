@@ -38,5 +38,3 @@ class TwinServer:
             self.server.process_net_events()
 
         self.send_updated_world_state(world_state)
-
-
