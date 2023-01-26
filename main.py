@@ -8,7 +8,7 @@ def main():
 
     # Proof of concept connection to show the twin server can send data
     #while True:
-    #    controller.twin.twin_server.check_for_response()
+    #    controller.twin.update()
 
 
 if __name__ == "__main__":
