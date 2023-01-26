@@ -1,6 +1,5 @@
 # whole twin system, environment and all
 
-from visualisation import server
 from twin.worldstate import WorldState
 
 from ursinanetworking import *
