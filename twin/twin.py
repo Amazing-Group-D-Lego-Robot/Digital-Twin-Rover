@@ -1,6 +1,5 @@
 # whole twin system, environment and all
 
-# from visualisation import server
 from twin.worldstate import WorldState
 
 from ursinanetworking import *
@@ -35,7 +34,6 @@ class TwinSystem:
     def __init__(self):
         # print("created a new twin system")
 
-        # self.twin_server = server
         self.worldstate = WorldState()
 
     def update(self, sensor_info=None, instruction=None):
