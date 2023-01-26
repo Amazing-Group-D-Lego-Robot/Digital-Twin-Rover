@@ -8,7 +8,6 @@ from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina import color
 from ursinanetworking import *
 
-
 Client = UrsinaNetworkingClient("localhost", 25565)
 
 
@@ -26,6 +25,20 @@ def onConnectionError(reason):
 def update_pos(world_state):
     # update visualisation with new world state
     print(f"Message from server: {world_state}")
+    rover.set_position(world_state)
+
+
+@Client.event
+def update_twin_rot(world_state):
+    # update visualisation with new world state
+    #print(f"Message from server (update_twin_rot): {world_state}")
+    rover.rotation = world_state
+
+
+@Client.event
+def update_twin_pos(world_state):
+    # update visualisation with new world state
+    #print(f"Message from server (update_twin_pos): {world_state}")
     rover.set_position(world_state)
 
 
@@ -70,6 +83,7 @@ z_pos = Text(text="XXXXXXXXX", parent=app, scale=.75, x=-1.15, y=0.400)
 ground = Entity(model='plane', collider='box', scale=2048, texture='grass_tintable', color=color.rgb(193, 68, 14),
                 texture_scale=(32, 32))
 rover = FirstPersonController(model='cube', z=-10, color=color.orange, origin_y=-2.5, speed=8)
+rover.gravity = 0
 rover.collider = BoxCollider(rover, Vec3(0, 1, 0), Vec3(1, 2, 1))
 camera.x = 5
 camera.z = -20
@@ -82,5 +96,5 @@ trail_renderer = TrailRenderer(parent=pivot, x=.1, y=2.5, thickness=20, color=co
 pause_camera = EditorCamera(enabled=False, ignore_paused=True)
 pause_handler = Entity(ignore_paused=True, input=input_handler)
 
-# window.size = (1600, 800)
+#window.size = (1280, 800)
 app.run()

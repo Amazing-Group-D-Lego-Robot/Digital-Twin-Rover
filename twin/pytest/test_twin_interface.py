@@ -9,7 +9,7 @@ from twin.twin_model import TwinModel
 
 
 def test_prediction_format():
-    twin_system = TwinSystem()
+    twin_system = TwinSystem(True)
 
     out = twin_system.predict_next()
 
@@ -32,7 +32,7 @@ def test_prediction_format():
 
 
 def test_default_model_update():
-    twin_system = TwinSystem()
+    twin_system = TwinSystem(True)
 
     twin_system.worldstate.twin.x_acc = 0.1
     twin_system.worldstate.twin.y_acc = 0.2
