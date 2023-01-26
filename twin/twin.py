@@ -6,12 +6,12 @@ from twin.worldstate import WorldState
 
 class TwinSystem:
     def __init__(self):
-        print("created a new twin system")
+        #print("created a new twin system")
 
         self.twin_server = server
         self.worldstate = WorldState()
 
-    def update(self, sensor_info, instruction):
+    def update(self, sensor_info=None, instruction=None):
         # update the rover with new instruction and sensor info
         # return new updated world state
 
