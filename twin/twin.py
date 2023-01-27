@@ -14,11 +14,11 @@ class TwinSystem:
         else:
             self.server = None
 
-    def update(self, sensor_info=None, instruction=None):
+    def update(self, sensor_info=None, instruction=None, tdelta=None):
         # update the rover with new instruction and sensor info
         # return new updated world state
 
-        self.worldstate.twin.update(sensor_info, instruction, self.worldstate.environment)
+        self.worldstate.twin.update(sensor_info, instruction, self.worldstate.environment, tdelta=tdelta)
         if self.server is not None:
             self.server.update(self.worldstate)
 

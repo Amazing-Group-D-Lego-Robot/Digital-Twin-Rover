@@ -2,3 +2,4 @@ ursina
 ursinanetworking
 pytest
 pdoc
+numpy
