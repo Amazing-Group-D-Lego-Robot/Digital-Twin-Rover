@@ -18,17 +18,12 @@ class TwinServer:
         def onClientDisconnected(client):
             print(f"{client} disconnected !")
 
-    def random_position(self):
-        position = (randint(0, 20), 0, randint(0, 20))
-        print("Position for client is", position)
-        self.server.broadcast("update_pos", position)
-
     def send_updated_world_state(self, world_state):
         if not isinstance(world_state, WorldState):
             raise ValueError
 
-        twin_pos = (world_state.twin.x_pos, world_state.twin.y_pos, world_state.twin.z_pos)
-        twin_rot = (world_state.twin.x_rot, world_state.twin.y_rot, world_state.twin.z_rot)
+        twin_pos = (world_state.twin.pos[0], world_state.twin.pos[1], world_state.twin.pos[2])
+        twin_rot = (world_state.twin.rot[0], world_state.twin.rot[1], world_state.twin.rot[2])
 
         self.server.broadcast("update_twin_pos", twin_pos)
         self.server.broadcast("update_twin_rot", twin_rot)

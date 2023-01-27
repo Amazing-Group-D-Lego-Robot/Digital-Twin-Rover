@@ -1,5 +1,6 @@
 from ursina import Ursina, Entity, mouse, application, camera, window, Text
 from ursina.collider import BoxCollider
+from ursina.mesh_importer import obj_to_ursinamesh
 from ursina.vec3 import Vec3
 from ursina.input_handler import held_keys
 from ursina.prefabs.editor_camera import EditorCamera
@@ -22,24 +23,17 @@ def onConnectionError(reason):
 
 
 @Client.event
-def update_pos(world_state):
-    # update visualisation with new world state
-    print(f"Message from server: {world_state}")
-    rover.set_position(world_state)
-
-
-@Client.event
 def update_twin_rot(world_state):
     # update visualisation with new world state
-    #print(f"Message from server (update_twin_rot): {world_state}")
-    rover.rotation = world_state
+    # print(f"Message from server (update_twin_rot): {world_state}")
+    rover.rotate_to(world_state)
 
 
 @Client.event
 def update_twin_pos(world_state):
     # update visualisation with new world state
-    #print(f"Message from server (update_twin_pos): {world_state}")
-    rover.set_position(world_state)
+    # print(f"Message from server (update_twin_pos): {world_state}")
+    rover.move_to(world_state)
 
 
 def update_menu():
@@ -69,6 +63,26 @@ def update():
     update_menu()
 
 
+class Rover(Entity):
+    def move_to(self, pos):
+        self.animate('position', pos, duration=.1)
+
+    def rotate_to(self, rot):
+        self.animate('rotation', rot, duration=.1)
+
+
+class Viewport(FirstPersonController):
+    def input(self, key):
+        if key == 'w':
+            self.position += self.forward
+
+        if key == 'space':
+            self.position += (0, 1, 0)
+
+        if key == 'shift':
+            self.position -= (0, 1, 0)
+
+
 # Init ursina
 app = Ursina()
 skybox = load_texture("assets/mars_skybox.png")
@@ -82,11 +96,17 @@ z_pos = Text(text="XXXXXXXXX", parent=app, scale=.75, x=-1.15, y=0.400)
 # Initialise the ground, rover and basic environment bounds
 ground = Entity(model='plane', collider='box', scale=2048, texture='grass_tintable', color=color.rgb(193, 68, 14),
                 texture_scale=(32, 32))
-rover = FirstPersonController(model='cube', z=-10, color=color.orange, origin_y=-2.5, speed=8)
-rover.gravity = 0
-rover.collider = BoxCollider(rover, Vec3(0, 1, 0), Vec3(1, 2, 1))
-camera.x = 5
-camera.z = -20
+
+rover = Rover(model="TriangulatedRover", z=0, origin_y=-0.51, speed=8)
+rover.collider = BoxCollider(rover, Vec3(0, 0, 0), Vec3(1, 1, 1))
+
+camera.x = 20
+camera.z = 20
+camera.y = 20
+
+viewport = Viewport(speed=10, x=5, z=-20)
+viewport.gravity = 0
+viewport.position += (0, 5, 0)
 
 # Rover trails
 pivot = Entity(parent=rover)
@@ -96,5 +116,5 @@ trail_renderer = TrailRenderer(parent=pivot, x=.1, y=2.5, thickness=20, color=co
 pause_camera = EditorCamera(enabled=False, ignore_paused=True)
 pause_handler = Entity(ignore_paused=True, input=input_handler)
 
-#window.size = (1280, 800)
+# window.size = (1280, 800)
 app.run()
