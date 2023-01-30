@@ -26,6 +26,8 @@ class Controller:
         Passes info to twin
         :return current_data: pandas dataframe of the current available
         """
+        # TODO: Make this send to the controller rather than return the data TODO: Talk to Will and Callum about what
+        #  they want doing here (This is a work in progress as I assume the controller predicts
         return self.current_data
 
 
