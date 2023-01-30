@@ -1,3 +1,5 @@
+import time
+
 from ursinanetworking import *
 from random import randint
 from time import sleep
