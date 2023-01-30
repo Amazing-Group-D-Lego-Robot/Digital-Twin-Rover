@@ -3,3 +3,6 @@ ursinanetworking
 pytest
 pdoc
 numpy
+pandas
+scipy
+matplotlib

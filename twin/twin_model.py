@@ -41,7 +41,7 @@ class TwinModel:
         # copy function for making predictions
         return deepcopy(self)
 
-    def update(self, sensor_data, instruction, environment, tdelta=None):
+    def update(self, sensor_data, instruction, environment):
         # update state based upon truths and environment
 
         motor_deltas = [0, 0, 0, 0]
@@ -67,28 +67,15 @@ class TwinModel:
         self.pos += self.forwards * (((motor_deltas[0] + motor_deltas[1]) / 2) * self.movement_per_degree)
         #print(self.forwards * (((motor_deltas[0] + motor_deltas[1]) / 2) * self.movement_per_degree))
 
-    def predict_next(self, n=1, environment=None, instruction=None):
+    def predict_next(self, environment=None, instruction=None):
         # predict based upon a possible new instruction and simulated sensor data gathered
         # from the environment
 
-        def predict_step(_n, current, futures, _environment, _instruction):
-            if not isinstance(current, TwinModel):
-                raise TypeError()
+        # start with the current state
+        prediction = self.copy()
 
-            # start with the current state
-            prediction = current.copy()
+        # PREDICTION AREA
 
-            # PREDICTION AREA
+        # END OF PREDICTION AREA
 
-            # END OF PREDICTION AREA
-
-            # append the new prediction to our list of future states
-            futures.append(prediction)
-
-            # exit condition
-            if _n == 1:
-                return futures
-            else:
-                return predict_step(_n - 1, futures[-1], futures, _environment, _instruction)
-
-        return predict_step(n, self, [], environment, instruction)
+        return prediction
