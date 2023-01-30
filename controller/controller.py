@@ -3,6 +3,7 @@
 from rover.rover import RoverControl
 from twin.twin import TwinSystem
 
+import sys
 import pandas as pd
 
 
@@ -12,6 +13,7 @@ class Controller:
         self.rover = RoverControl()
         self.twin = TwinSystem()
         self.current_data = None
+        self.offline_file_location = "/home/charlie/Documents/Hardware/FirstModel/motor data, human version.csv"
 
     def send_to_rover(self):
         """
@@ -19,11 +21,12 @@ class Controller:
         """
         pass
 
-    def send_to_twin(self):
+    def send_to_twin(self) -> pd.DataFrame:
         """
         Passes info to twin
+        :return current_data: pandas dataframe of the current available
         """
-        pass
+        return self.current_data
 
     def receive_from_twin(self):
         """
@@ -32,26 +35,25 @@ class Controller:
 
         pass
 
-    def receive_from_rover(self):
+    def receive_from_rover(self, is_online:bool = False):
         """
         Function to digest rover input
+        :param is_online: boolean value to indicate if the rover is live or not
         """
-        pass
+        if is_online:
+            return -1
 
+        self.current_data = self.offline_load_csv(self.offline_file_location)
 
-    def offline_load_file(self, location) :
+    @staticmethod
+    def offline_load_csv(location) -> pd.DataFrame:
         """
         Function for loading offline file
         :param location: current location of offline file
-        :return status: Returns status code based on load
         :return data: Returns CSV data for conversion
         """
-        pass
 
-    def csv_to_dataframe(self, file) -> pd.DataFrame:
-        """
-        Converts CSV file to pandas dataframe
-        :param file:
-        :return:
-        """
-        pass
+        df = pd.read_csv(location)
+        df.fillna(method="ffill", inplace=True)
+        df.fillna(method="backfill", inplace=True)
+        return df
