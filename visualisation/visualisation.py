@@ -8,31 +8,22 @@ from ursina.prefabs.trail_renderer import TrailRenderer
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina import color
 from ursinanetworking import *
+from client import VisualClient
 
-Client = UrsinaNetworkingClient("localhost", 25565)
-
-
-@Client.event
-def onConnectionEstablished():
-    print("I'm connected to the server !")
-
-
-@Client.event
-def onConnectionError(reason):
-    print(f"Error ! Reason : {reason}")
+Client = VisualClient()
 
 
 @Client.event
 def update_twin_rot(world_state):
     # update visualisation with new world state
-    # print(f"Message from server (update_twin_rot): {world_state}")
+    print(f"Message from server (update_twin_rot): {world_state}")
     rover.rotate_to(world_state)
 
 
 @Client.event
 def update_twin_pos(world_state):
     # update visualisation with new world state
-    # print(f"Message from server (update_twin_pos): {world_state}")
+    print(f"Message from server (update_twin_pos): {world_state}")
     rover.move_to(world_state)
 
 
@@ -48,16 +39,8 @@ def update():
     # Process network communications
     Client.process_net_events()
 
-    # Press tab to toggle free cam mode
-    if held_keys['tab']:
-        pause_camera.enabled = not pause_camera.enabled
-        rover.visible_self = pause_camera.enabled
-        rover.cursor.enabled = not pause_camera.enabled
-        mouse.locked = not pause_camera.enabled
-        pause_camera.position = rover.position
-        application.paused = pause_camera.enabled
-
     if held_keys['escape']:
+        Client.close()
         quit()
 
     update_menu()
@@ -65,10 +48,10 @@ def update():
 
 class Rover(Entity):
     def move_to(self, pos):
-        self.animate('position', pos, duration=.1)
+        self.animate_position(pos, duration=.1)
 
     def rotate_to(self, rot):
-        self.animate('rotation', rot, duration=.1)
+        self.animate_rotation(rot, duration=.1)
 
 
 class Viewport(FirstPersonController):
