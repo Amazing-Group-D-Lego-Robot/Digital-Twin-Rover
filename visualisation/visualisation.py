@@ -49,13 +49,13 @@ def update():
     Client.process_net_events()
 
     # Press tab to toggle free cam mode
-    if held_keys['tab']:
-        pause_camera.enabled = not pause_camera.enabled
-        rover.visible_self = pause_camera.enabled
-        rover.cursor.enabled = not pause_camera.enabled
-        mouse.locked = not pause_camera.enabled
-        pause_camera.position = rover.position
-        application.paused = pause_camera.enabled
+    # if held_keys['tab']:
+    #     pause_camera.enabled = not pause_camera.enabled
+    #     viewport.visible_self = pause_camera.enabled
+    #     viewport.cursor.enabled = not pause_camera.enabled
+    #     mouse.locked = not pause_camera.enabled
+    #     pause_camera.position = viewport.position
+    #     application.paused = pause_camera.enabled
 
     if held_keys['escape']:
         quit()

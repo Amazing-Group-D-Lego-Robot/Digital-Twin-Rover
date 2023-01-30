@@ -18,7 +18,7 @@ def main():
     df.fillna(method="ffill", inplace=True)
     df.fillna(method="backfill", inplace=True)
 
-    sleep(10)
+    sleep(2)
 
     for i in range(1, len(df)):
         controller.twin.update(sensor_info=df.iloc[i][["A", "B", "C", "Yaw"]])
