@@ -3,16 +3,15 @@
 from twin.worldstate import WorldState
 from visualisation.server import TwinServer
 
-
 class TwinSystem:
     def __init__(self, testing=False):
         # print("created a new twin system")
 
         self.worldstate = WorldState()
+        self.server = None
+
         if not testing:
             self.server = TwinServer()
-        else:
-            self.server = None
 
     def update(self, sensor_info=None, instruction=None, tdelta=None):
         # update the rover with new instruction and sensor info

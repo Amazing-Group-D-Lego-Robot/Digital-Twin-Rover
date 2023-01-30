@@ -28,7 +28,6 @@ class TwinModel:
         self.rot = np.array([0., 0., 0.])  # rotation in degrees about each axis
 
         # MOTORS
-        self.motor_speeds = [0, 0, 0, 0]  # motor speed in range [0, 1]
         self.motor_rots = [0, 0, 0, 0]  # motor rotation angles in degrees
 
         # SENSORS
@@ -45,13 +44,28 @@ class TwinModel:
     def update(self, sensor_data, instruction, environment, tdelta=None):
         # update state based upon truths and environment
 
+        motor_deltas = [0, 0, 0, 0]
+
         if sensor_data is not None:
             # TODO: Update sensors when we have a structure for them
-            pass
+            motor_deltas[0] = sensor_data["A"] - self.motor_rots[0]
+            motor_deltas[1] = sensor_data["B"] - self.motor_rots[1]
+            motor_deltas[2] = sensor_data["C"] - self.motor_rots[2]
+
+            self.motor_rots[0] = sensor_data["A"]
+            self.motor_rots[1] = sensor_data["B"]
+            self.motor_rots[2] = sensor_data["C"]
+
+            self.rot[1] = sensor_data["Yaw"]
+            r = R.from_euler("y", self.rot[1], degrees=True)
+            self.forwards = r.apply(np.array([0., 0., 1.]))
 
         if instruction is not None:
             # TODO: Update state with instruction when we have a structure for them
             pass
+
+        self.pos += self.forwards * (((motor_deltas[0] + motor_deltas[1]) / 2) * self.movement_per_degree)
+        #print(self.forwards * (((motor_deltas[0] + motor_deltas[1]) / 2) * self.movement_per_degree))
 
     def predict_next(self, n=1, environment=None, instruction=None):
         # predict based upon a possible new instruction and simulated sensor data gathered

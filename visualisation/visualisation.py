@@ -73,48 +73,41 @@ class Rover(Entity):
 
 class Viewport(FirstPersonController):
     def input(self, key):
-        if key == 'w':
-            self.position += self.forward
-
         if key == 'space':
-            self.position += (0, 1, 0)
+            self.position += (0, 0.03, 0)
 
         if key == 'shift':
-            self.position -= (0, 1, 0)
+            self.position -= (0, 0.03, 0)
 
 
 # Init ursina
-app = Ursina()
+app = Ursina(forced_aspect_ratio=4/3, size=(1000, 1000), vsync=False)
 skybox = load_texture("assets/mars_skybox.png")
 sky = Sky(texture=skybox, color=color.rgb(185, 157, 118))
 
 # Menu Values
-x_pos = Text(text="XXXXXXXXX", parent=app, scale=.75, x=-1.15, y=0.450)
-y_pos = Text(text="XXXXXXXXX", parent=app, scale=.75, x=-1.15, y=0.425)
-z_pos = Text(text="XXXXXXXXX", parent=app, scale=.75, x=-1.15, y=0.400)
+x_pos = Text(text="XXXXXXXXX", parent=app, scale=.75, x=0.1, y=0.0)
+y_pos = Text(text="XXXXXXXXX", parent=app, scale=.75, x=0.1, y=0.03)
+z_pos = Text(text="XXXXXXXXX", parent=app, scale=.75, x=0.1, y=0.06)
 
 # Initialise the ground, rover and basic environment bounds
 ground = Entity(model='plane', collider='box', scale=2048, texture='grass_tintable', color=color.rgb(193, 68, 14),
                 texture_scale=(32, 32))
 
-rover = Rover(model="TriangulatedRover", z=0, origin_y=-0.51, speed=8)
-rover.collider = BoxCollider(rover, Vec3(0, 0, 0), Vec3(1, 1, 1))
+rover = Rover(model="RoverDebug", texture="rover_box", z=0, origin_y=-0.04)
+#rover.collider = BoxCollider(rover, Vec3(0, 0, 0), Vec3(1, 1, 1))
 
-camera.x = 20
-camera.z = 20
-camera.y = 20
-
-viewport = Viewport(speed=10, x=5, z=-20)
+viewport = Viewport(speed=1, x=0, z=-0.5)
 viewport.gravity = 0
-viewport.position += (0, 5, 0)
+viewport.position += (0, 0.4, 0)
 
 # Rover trails
 pivot = Entity(parent=rover)
-trail_renderer = TrailRenderer(parent=pivot, x=.1, y=2.5, thickness=20, color=color.white, length=100)
+trail_renderer = TrailRenderer(parent=pivot, x=0, y=0.04, thickness=10, color=color.blue, length=10000)
 
 # Handle pausing the visual
 pause_camera = EditorCamera(enabled=False, ignore_paused=True)
 pause_handler = Entity(ignore_paused=True, input=input_handler)
 
-# window.size = (1280, 800)
+#window.size = (1280, 800)
 app.run()
