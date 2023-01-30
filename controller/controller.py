@@ -28,6 +28,7 @@ class Controller:
         """
         return self.current_data
 
+
     def receive_from_twin(self):
         """
         Function to digest twin input
@@ -43,17 +44,16 @@ class Controller:
         if is_online:
             return -1
 
-        self.current_data = self.offline_load_csv(self.offline_file_location)
+        self.current_data = self.offline_load_csv()
 
-    @staticmethod
-    def offline_load_csv(location) -> pd.DataFrame:
+    def offline_load_csv(self) -> pd.DataFrame:
         """
         Function for loading offline file
         :param location: current location of offline file
         :return data: Returns CSV data for conversion
         """
 
-        df = pd.read_csv(location)
+        df = pd.read_csv(self.offline_file_location)
         df.fillna(method="ffill", inplace=True)
         df.fillna(method="backfill", inplace=True)
         return df
