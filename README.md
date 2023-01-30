@@ -7,7 +7,6 @@ The main repository for the whole digital twin rover.
 The visualisation is created using Ursina engine which is open source under the MIT License.
 
 ### Controls
-- \<TAB\> Toggles freecam mode, whilst in freecam hold right click and navigate with WASD or the rotate with the mouse
 - \<SHIFT\> + q Quits the visualisation
 - \<ESC\> Quits the visualisation
 

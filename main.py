@@ -2,7 +2,7 @@
 import os
 import random
 import sys
-from time import sleep
+from time import sleep, time
 
 import pandas as pd
 import numpy as np
