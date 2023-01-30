@@ -1,3 +1,5 @@
+import time
+
 from ursinanetworking import *
 from random import randint
 from time import sleep
@@ -27,8 +29,7 @@ class TwinServer(UrsinaNetworkingServer):
         twin_pos = (world_state.twin.pos[0], world_state.twin.pos[1], world_state.twin.pos[2])
         twin_rot = (world_state.twin.rot[0], world_state.twin.rot[1], world_state.twin.rot[2])
 
-        self.broadcast("update_twin_pos", twin_pos)
-        self.broadcast("update_twin_rot", twin_rot)
+        self.broadcast("new_position", world_state.twin.__dict__)
 
     def update(self, world_state):
         while len(self.events_manager.events) > 0:

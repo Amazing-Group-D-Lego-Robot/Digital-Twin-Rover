@@ -2,9 +2,11 @@
 import os
 import random
 import sys
-from time import sleep
+from time import sleep, time
 
+import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 from controller.controller import Controller
 
@@ -12,25 +14,16 @@ from controller.controller import Controller
 def main():
     controller = Controller()
 
-    # Proof of concept connection to show the twin server can send data
+    df = pd.read_csv("res/motor data, lego version.csv")
+    df.fillna(method="ffill", inplace=True)
+    df.fillna(method="backfill", inplace=True)
 
-    controller.twin.worldstate.twin.x_acc = 0.1
-    controller.twin.worldstate.twin.y_acc = 0.2
-    controller.twin.worldstate.twin.z_acc = 0.3
+    sleep(2)
 
-    i = 0
-
-    while i < 300:
-        if i % 100 == 0:
-            controller.twin.worldstate.twin.x_acc = -0.5 + random.random()
-            controller.twin.worldstate.twin.y_acc = -0.5 + random.random()
-            controller.twin.worldstate.twin.z_acc = -0.5 + random.random()
-            print("direction change")
-
-        i += 1
-
-        controller.twin.update()
+    for i in range(1, len(df)):
+        controller.twin.update(sensor_info=df.iloc[i][["A", "B", "C", "Yaw"]])
         sleep(0.1)
+        print(df.iloc[i]["timestamp"]/1000., controller.twin.worldstate.twin.pos)
 
 
 if __name__ == "__main__":
