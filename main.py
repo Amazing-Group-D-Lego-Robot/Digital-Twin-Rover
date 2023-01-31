@@ -13,17 +13,13 @@ from controller.controller import Controller
 
 def main():
     controller = Controller()
-
-    df = pd.read_csv("res/motor data, lego version.csv")
-    df.fillna(method="ffill", inplace=True)
-    df.fillna(method="backfill", inplace=True)
+    controller.load_data("res/motor data, lego version.csv")
 
     sleep(2)
 
-    for i in range(1, len(df)):
-        controller.twin.update(sensor_info=df.iloc[i][["A", "B", "C", "Yaw"]])
+    # run the controller until we reach the end of the dataset
+    while controller.update():
         sleep(0.1)
-        print(df.iloc[i]["timestamp"]/1000., controller.twin.worldstate.twin.pos)
 
 
 if __name__ == "__main__":
