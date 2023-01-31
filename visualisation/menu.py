@@ -1,10 +1,13 @@
+from tkinter import filedialog as fd
+
+
 class PauseMenu:
     # TODO: Create button for resume
     # TODO: Create button for restart scenario
     # TODO: Create button for exit to main menu
     # TODO: Create button to kill server and client
     def __init__(self):
-        self.paused = False # True if in use false otherwise
+        self.paused = False  # True if in use false otherwise
 
     def exit_main_menu(self):
         pass
@@ -23,10 +26,15 @@ class MainMenu:
         """
         Initial Main Menu for Ursina
         """
-        pass
+        self.filename = ""
 
     def load_file(self):
-        pass
+        """
+        Tkinter file dialogue
+        """
+        self.filename = fd.askopenfilename(title="Open File", defaultextension="csv")
+        # TODO: Feed this into controller
+        # Maybe an issue here due to file being loaded in controller???
 
 
 class VisualMenu:
