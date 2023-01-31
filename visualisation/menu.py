@@ -1,16 +1,15 @@
-
 class PauseMenu:
-    #TODO: Create button for resume
-    #TODO: Create button for restart scenario
-    #TODO: Create button for exit to main menu
-    #TODO: Create button to kill server and client
+    # TODO: Create button for resume
+    # TODO: Create button for restart scenario
+    # TODO: Create button for exit to main menu
+    # TODO: Create button to kill server and client
     def __init__(self):
-
         pass
 
+
 class MainMenu:
-    #TODO: File picker
-    #TODO: Exit to desktop (Kill client and server)
+    # TODO: File picker
+    # TODO: Exit to desktop (Kill client and server)
     def __init__(self):
         """
         Initial Main Menu for Ursina
