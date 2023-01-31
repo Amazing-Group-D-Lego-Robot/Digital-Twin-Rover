@@ -1,3 +1,7 @@
+from ursina import Entity, camera, load_texture
+from ursina import *
+
+
 class VisualMenu:
     def __init__(self):
         self.x_pos = 0
@@ -48,3 +52,14 @@ class VisualMenu:
 
     def get_rot(self):
         return [self.x_rot, self.y_rot, self.z_rot]
+
+
+class MainMenu(Entity):
+    def __init__(self):
+        """Init for Main Menu Entity"""
+        super().__init__(
+            parent=camera.ui,
+            # model='quad',
+            scale=(0.9, 0.9),
+            texture=load_texture('assets/menu-bg.jpg')
+        )
