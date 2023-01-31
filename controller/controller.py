@@ -2,6 +2,7 @@
 
 from rover.rover import RoverControl
 from twin.twin import TwinSystem
+from visualisation.server import TwinServer
 
 import sys
 import pandas as pd
@@ -13,6 +14,7 @@ class Controller:
 
         self.rover = RoverControl()
         self.twin = TwinSystem()
+        self.server = TwinServer()
 
         self.current_data = None
         self.current_row = 0
@@ -28,6 +30,8 @@ class Controller:
         # TODO: Add instructions to the dataset then feed them in here
         self.twin.update(self.current_data.iloc[self.current_row], instruction=None)
         self.current_row += 1
+
+        self.server.update(self.twin.worldstate)
 
         return True
 
