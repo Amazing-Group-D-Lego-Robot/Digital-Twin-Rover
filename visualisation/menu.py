@@ -4,7 +4,16 @@ class PauseMenu:
     # TODO: Create button for exit to main menu
     # TODO: Create button to kill server and client
     def __init__(self):
+        self.paused = False # True if in use false otherwise
+
+    def exit_main_menu(self):
         pass
+
+    def exit_desktop(self):
+        pass
+
+    def resume(self):
+        self.paused = False
 
 
 class MainMenu:
@@ -14,7 +23,9 @@ class MainMenu:
         """
         Initial Main Menu for Ursina
         """
+        pass
 
+    def load_file(self):
         pass
 
 
