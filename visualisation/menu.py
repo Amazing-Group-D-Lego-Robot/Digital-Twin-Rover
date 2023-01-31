@@ -1,3 +1,13 @@
+
+class PauseMenu:
+    def __init__(self):
+        pass
+
+class MainMenu:
+    def __init__(self):
+        pass
+
+
 class VisualMenu:
     def __init__(self):
         self.x_pos = 0
