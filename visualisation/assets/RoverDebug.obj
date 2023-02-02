@@ -1,6 +1,6 @@
 # Blender 3.4.1
 # www.blender.org
-mtllib RoverDebug.mtl
+mtllib AgentDebug.mtl
 o Cube
 v 0.055000 0.080000 -0.072500
 v 0.055000 0.000000 -0.072500

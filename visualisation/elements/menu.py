@@ -1,4 +1,7 @@
 class VisualMenu:
+    """
+    Helper class to store all relevant world state data for the visualisation
+    """
     def __init__(self):
         self.x_pos = 0
         self.y_pos = 0
@@ -22,6 +25,11 @@ class VisualMenu:
         self.motor_3 = 0
 
     def update_menu(self, world_state):
+        """
+        Input a world_state dict and store locally for the visualisations needs
+        :param world_state:
+        :return:
+        """
         self.x_pos = world_state["pos"][0]
         self.y_pos = world_state["pos"][1]
         self.z_pos = world_state["pos"][2]
@@ -44,7 +52,15 @@ class VisualMenu:
         self.motor_3 = world_state["motor_rots"][3]
 
     def get_pos(self):
+        """
+        Get the current rover position from the last world state
+        :return:
+        """
         return [self.x_pos, self.y_pos, self.z_pos]
 
     def get_rot(self):
+        """
+        Get the current rover rotation from the last world state
+        :return:
+        """
         return [self.x_rot, self.y_rot, self.z_rot]

@@ -1,7 +1,7 @@
 # Blender 3.4.1
 # www.blender.org
-mtllib TriangulatedRover.mtl
-o MarsRover
+mtllib TriangulatedAgent.mtl
+o MarsAgent
 v -0.265802 0.675970 0.347521
 v -0.265802 0.675970 -0.288775
 v -0.243948 0.430170 -0.288775

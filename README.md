@@ -1,5 +1,5 @@
-# Digital-Twin-Rover
-The main repository for the whole digital twin rover.
+# Digital-Twin-Agent
+The main repository for the whole digital twin agent.
 
 ## ALWAYS RUN `main.py`, AND USE FULL IMPORT PATHS FROM MAIN
 

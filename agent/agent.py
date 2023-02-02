@@ -1,11 +1,11 @@
 # ROVER CONTROL CODE
 
-class RoverControl:
+class AgentControl:
     def __init__(self):
-        print("created a new rover controller")
+        print("created a new agent controller")
 
     def send_instruction(self, instruction):
-        # update the rover with new instruction
+        # update the agent with new instruction
         pass
 
     def poll_sensors(self):

@@ -11,7 +11,7 @@ class TwinSystem:
         self.worldstate = WorldState()
 
     """
-    Update the state of the twin system based upon new truth's (sensor data) sent from the rover
+    Update the state of the twin system based upon new truth's (sensor data) sent from the agent
     
     Args:
         sensor_info: A pandas dataframe that contains a "timestamp" column, and other labeled sensor columns
@@ -22,7 +22,7 @@ class TwinSystem:
     """
 
     def update(self, sensor_info=None, instruction=None):
-        # update the rover with new instruction and sensor info
+        # update the agent with new instruction and sensor info
         # return new updated world state
 
         self.worldstate.twin.update(sensor_info, instruction, self.worldstate.environment)
