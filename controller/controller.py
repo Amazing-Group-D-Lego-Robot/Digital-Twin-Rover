@@ -1,10 +1,9 @@
 # CALLS METHODS FROM TWIN AND ROVER TO SEND INSTrUCTIONS / POLL SENSORS AND STATE
 
-from rover.rover import RoverControl
+from agent.agent import AgentControl
 from twin.twin import TwinSystem
-from visualisation.server import TwinServer
+from visualisation.networking.server import TwinServer
 
-import sys
 import pandas as pd
 
 
@@ -12,7 +11,7 @@ class Controller:
     def __init__(self):
         #print("created a new controller")
 
-        self.rover = RoverControl()
+        self.agent = AgentControl()
         self.twin = TwinSystem()
         self.server = TwinServer()
 
@@ -48,9 +47,9 @@ class Controller:
         self.current_data = df
         self.current_row = 0
 
-    # def send_to_rover(self):
+    # def send_to_agent(self):
     #     """
-    #     Passes information to rover
+    #     Passes information to agent
     #     """
     #     pass
 
@@ -70,10 +69,10 @@ class Controller:
     #
     #     pass
 
-    # def receive_from_rover(self, is_online:bool = False):
+    # def receive_from_agent(self, is_online:bool = False):
     #     """
-    #     Function to digest rover input
-    #     :param is_online: boolean value to indicate if the rover is live or not
+    #     Function to digest agent input
+    #     :param is_online: boolean value to indicate if the agent is live or not
     #     # """
     #     # if is_online:
     #     #     return -1

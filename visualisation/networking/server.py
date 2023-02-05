@@ -8,7 +8,13 @@ from twin.worldstate import WorldState
 
 
 class TwinServer(UrsinaNetworkingServer):
+    """
+    Class to override UrsinaNetworkingClient from UrsinaNetworking
+    """
     def __init__(self):
+        """
+        Override UrsinaNetworking constants for PEP8 conformity
+        """
         super().__init__("localhost", 25565)
         ursinanetworking.BUILTIN_EVENT_CLIENT_CONNECTED = 'on_client_connected'
         ursinanetworking.BUILTIN_EVENT_CLIENT_DISCONNECTED = 'on_client_disconnected'
@@ -22,16 +28,20 @@ class TwinServer(UrsinaNetworkingServer):
         def on_client_disconnected(client):
             print(f"{client} disconnected !")
 
-    def send_updated_world_state(self, world_state):
-        if not isinstance(world_state, WorldState):
-            raise ValueError
-
-        twin_pos = (world_state.twin.pos[0], world_state.twin.pos[1], world_state.twin.pos[2])
-        twin_rot = (world_state.twin.rot[0], world_state.twin.rot[1], world_state.twin.rot[2])
-
+    def send_updated_world_state(self, world_state: WorldState):
+        """
+        Send a world state dictionary to the client
+        :param world_state:
+        :return:
+        """
         self.broadcast("new_position", world_state.twin.__dict__)
 
-    def update(self, world_state):
+    def update(self, world_state: WorldState):
+        """
+        Send the world state to clients after processing any inbound network events
+        :param world_state:
+        :return:
+        """
         while len(self.events_manager.events) > 0:
             self.process_net_events()
 
