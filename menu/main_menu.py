@@ -3,7 +3,7 @@ from tkinter import filedialog as fd
 from PIL import ImageTk, Image
 
 
-class MainMenu():
+class MainMenu:
     def __init__(self):
         # Create the window
         self.root = tk.Tk()
@@ -59,7 +59,7 @@ class MainMenu():
         print(filename)
 
 
-def test_menu() -> int:
+def test_menu():
     """
     test loop for running main menu
     :return: status code based on menu exit
