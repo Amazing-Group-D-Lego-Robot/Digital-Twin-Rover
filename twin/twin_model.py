@@ -67,7 +67,7 @@ class TwinModel:
         self.pos += self.forwards * (((motor_deltas[0] + motor_deltas[1]) / 2) * self.movement_per_degree)
         #print(self.forwards * (((motor_deltas[0] + motor_deltas[1]) / 2) * self.movement_per_degree))
 
-    def predict_next(self, environment=None, instruction=None):
+    def predict_next(self, environment=None, instructions=None):
         # predict based upon a possible new instruction and simulated sensor data gathered
         # from the environment
 
