@@ -5,12 +5,11 @@ from PIL import ImageTk, Image
 
 class MainMenu():
     def __init__(self):
-
         # Create the window
         self.root = tk.Tk()
         self.root.resizable(width=False, height=False)
         self.root.minsize(width=500, height=500)
-        self.root.maxsize(width=500,height=500)
+        self.root.maxsize(width=500, height=500)
 
         # Get Menu Cover Image
         self.title_img = Image.open("assets/MainMenuTitle.png")
@@ -21,7 +20,7 @@ class MainMenu():
         self.cover = tk.Label(image=self.title_img)
         self.title = tk.Label(text="Main Menu", font='Helvetica 18 bold')
 
-        #Create the buttons
+        # Create the buttons
         self.buttons = [tk.Button(text="Play Offline Scenario", command=self.play_offline, font="Helvetica"),
                         tk.Button(text="Play Live Scenario", command=self.play_live, font="Helvetica"),
                         tk.Button(text="Exit", command=self.close, font="Helvetica")]
