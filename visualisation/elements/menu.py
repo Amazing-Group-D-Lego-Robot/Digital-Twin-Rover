@@ -46,10 +46,10 @@ class VisualMenu:
         self.y_acc = world_state["acc"][1]
         self.z_acc = world_state["acc"][2]
 
-        self.motor_0 = world_state["motor_rots"][0]
-        self.motor_1 = world_state["motor_rots"][1]
-        self.motor_2 = world_state["motor_rots"][2]
-        self.motor_3 = world_state["motor_rots"][3]
+        self.motor_0 = world_state["A"]
+        self.motor_1 = world_state["B"]
+        self.motor_2 = world_state["C"]
+        self.motor_3 = world_state["D"]
 
     def get_pos(self):
         """

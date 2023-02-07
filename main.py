@@ -15,11 +15,11 @@ def main():
     controller = Controller()
     controller.load_data("res/motor data, lego version.csv")
 
-    sleep(2)
+    sleep(3)
 
     # run the controller until we reach the end of the dataset
     while controller.update():
-        sleep(0.1)
+        sleep(0.08)
 
 
 if __name__ == "__main__":

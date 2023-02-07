@@ -34,7 +34,10 @@ class TwinServer(UrsinaNetworkingServer):
         :param world_state:
         :return:
         """
-        self.broadcast("new_position", world_state.twin.__dict__)
+        updated_state = {key: world_state.twin.__dict__[key] for key in ["pos", "vel", "acc", "rot"]}
+        updated_state.update(world_state.twin.sensors)
+
+        self.broadcast("new_position", updated_state)
 
     def update(self, world_state: WorldState):
         """

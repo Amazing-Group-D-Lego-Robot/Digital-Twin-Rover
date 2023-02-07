@@ -5,7 +5,7 @@ from scipy.spatial.transform import Rotation as R
 
 
 class TwinModel:
-    def __init__(self):
+    def __init__(self, sensors=None):
         # print("created new twin")
 
         # META INFO
@@ -20,52 +20,51 @@ class TwinModel:
         #           \ |
         #            \|
         #             *---------- x(right)
-        self.forwards = np.array([0., 0., 1.])  # 3d unit vector pointing in our forwards direction
 
         self.pos = np.array([0., 0., 0.])  # 3d position vector
         self.vel = np.array([0., 0., 0.])  # 3d velocity vector
         self.acc = np.array([0., 0., 0.])  # 3d acceleration vector
         self.rot = np.array([0., 0., 0.])  # rotation in degrees about each axis
 
-        # MOTORS
-        self.motor_rots = [0, 0, 0, 0]  # motor rotation angles in degrees
+        if sensors is not None:
+            self.sensors = {name: 0 for name in sensors}  # dict of sensor name value pairs
+            self.sensor_deltas = {name: 0 for name in sensors}  # dict of sensor name value pairs
+        else:
+            self.sensors = dict()
+            self.sensor_deltas = dict()
 
-        # SENSORS
-        self.distance_sensor = 0  # number of mm to the nearest object ahead of the sensor
+        # Values that need to be derived / set at update:
+        #   - self.pos
+        #   - self.vel
+        #   - self.acc
+        #   - self.rot
 
-        # PROPERTIES
-        self.wheel_diameter = 0.088  # diameter of the driving wheels in m
-        self.movement_per_degree = (self.wheel_diameter * 3.141592654) / 360  # m of movement with 1 degree of turn
+        self.update_funcs = []  # list of functions to execute every update step
+
+    def add_update_function(self, function):
+        self.update_funcs.append(function)
+
+    def get_forwards(self):
+        r = R.from_euler("xyz", self.rot, degrees=True)
+        return r.apply(np.array([0., 0., 1.]))
 
     def copy(self):
         # copy function for making predictions
         return deepcopy(self)
 
-    def update(self, sensor_data, instruction, environment):
+    def update(self, sensor_data: dict, instruction, environment):
         # update state based upon truths and environment
+        for key, item in sensor_data.items():
+            if key in self.sensors:
+                self.sensor_deltas[key] = sensor_data[key] - self.sensors[key]
+                self.sensors[key] = sensor_data[key]
 
-        motor_deltas = [0, 0, 0, 0]
-
-        if sensor_data is not None:
-            # TODO: Update sensors when we have a structure for them
-            motor_deltas[0] = sensor_data["A"] - self.motor_rots[0]
-            motor_deltas[1] = sensor_data["B"] - self.motor_rots[1]
-            motor_deltas[2] = sensor_data["C"] - self.motor_rots[2]
-
-            self.motor_rots[0] = sensor_data["A"]
-            self.motor_rots[1] = sensor_data["B"]
-            self.motor_rots[2] = sensor_data["C"]
-
-            self.rot[1] = sensor_data["Yaw"]
-            r = R.from_euler("y", self.rot[1], degrees=True)
-            self.forwards = r.apply(np.array([0., 0., 1.]))
+        for update_func in self.update_funcs:
+            update_func(self)
 
         if instruction is not None:
             # TODO: Update state with instruction when we have a structure for them
             pass
-
-        self.pos += self.forwards * (((motor_deltas[0] + motor_deltas[1]) / 2) * self.movement_per_degree)
-        #print(self.forwards * (((motor_deltas[0] + motor_deltas[1]) / 2) * self.movement_per_degree))
 
     def predict_next(self, environment=None, instructions=None):
         # predict based upon a possible new instruction and simulated sensor data gathered
