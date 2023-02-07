@@ -3,6 +3,7 @@ from tkinter import filedialog as fd
 from PIL import ImageTk, Image
 
 import threading
+from platform import system
 from controller.controller import Controller
 from time import sleep
 import os
@@ -12,6 +13,7 @@ import sys
 class MainMenu:
     def __init__(self):
         # Create the window
+
         self.controller = None
         self.filename = None
         self.root = tk.Tk()
@@ -71,18 +73,17 @@ class MainMenu:
         while self.filename is None:
             self.filename = fd.askopenfilename()
 
-        # os.system("cd ../visualisation && python3 visualisation.py")
+        # create threads
+        thread_controller = threading.Thread(target=self.start_offline_controller)
+        thread_vis = threading.Thread(target=self.start_offline_vis)
 
-        cwd = os.getcwd()
-        path_vis = cwd[:-4] + "visualisation/visualisation.py"
-        path_control = cwd[:-4] + "controller/controller.py"
+        # start threads
+        thread_controller.start()
+        thread_vis.start()
 
-        y = threading.Thread(target=self.start_offline_controller)
-        x = threading.Thread(target=self.start_offline_vis)
-        y.start()
-        x.start()
-        y.join()
-        x.join()
+        # end threads
+        thread_controller.join()
+        thread_vis.join()
         self.filename = None
 
     def start_offline_controller(self):
@@ -95,10 +96,11 @@ class MainMenu:
         while self.controller.update():
             sleep(0.1)
 
-
     @staticmethod
     def start_offline_vis():
-        sleep(1)
-        os.system("cd visualisation && python3 visualisation.py")
+        plt = system()
 
-
+        if plt == "Windows":
+            os.system("cd visualisation && cmd.exe /c python visualisation.py")
+        elif plt == "Linux":
+            os.system("cd visualisation && python3 visualisation.py")
