@@ -2,10 +2,17 @@ import tkinter as tk
 from tkinter import filedialog as fd
 from PIL import ImageTk, Image
 
+import threading
+from controller.controller import Controller
+from time import sleep
+import os
+
 
 class MainMenu:
     def __init__(self):
         # Create the window
+        self.controller = None
+        self.filename = None
         self.root = tk.Tk()
         self.root.resizable(width=False, height=False)
         self.root.minsize(width=500, height=500)
@@ -55,14 +62,45 @@ class MainMenu:
 
     def play_offline(self):
         """Functionality for launching offline play"""
-        filename = fd.askopenfilename(parent=self.root)
-        print(filename)
+
+        while self.filename is None:
+            self.filename = fd.askopenfilename()
+
+        # os.system("cd ../visualisation && python3 visualisation.py")
+
+        cwd = os.getcwd()
+        path_vis = cwd[:-4] + "visualisation/visualisation.py"
+        path_control = cwd[:-4] + "controller/controller.py"
+
+        y = threading.Thread(target=self.start_offline_controller)
+        x = threading.Thread(target=self.start_offline_vis)
+        y.start()
+        x.start()
+        y.join()
+        x.join()
+        self.filename = None
+
+    def start_offline_controller(self):
+        print("testA")
+        self.controller = Controller()
+        self.controller.load_data(self.filename)
+
+        sleep(2)
+
+        # run the controller until we reach the end of the dataset
+        while self.controller.update():
+            sleep(0.1)
+
+    @staticmethod
+    def start_offline_vis():
+        sleep(1)
+        os.system("cd ../visualisation && python3 visualisation.py")
 
 
-def test_menu():
-    """
-    test loop for running main menu
-    :return: status code based on menu exit
-    """
-    window = MainMenu()
-    window.launch()
+def run_program():
+    start_menu = MainMenu()
+    start_menu.launch()
+
+
+if __name__ == "__main__":
+    run_program()
