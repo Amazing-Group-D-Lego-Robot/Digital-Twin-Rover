@@ -3,7 +3,7 @@ from copy import deepcopy
 
 import pytest
 
-from twin.twin import TwinSystem
+from twin.twin_system import TwinSystem
 from twin.twin_environment import TwinEnvironment
 from twin.twin_model import TwinModel
 

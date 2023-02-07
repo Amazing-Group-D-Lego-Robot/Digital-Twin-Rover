@@ -4,8 +4,6 @@ from ursinanetworking import *
 from random import randint
 from time import sleep
 
-from twin.worldstate import WorldState
-
 
 class TwinServer(UrsinaNetworkingServer):
     """
@@ -28,24 +26,26 @@ class TwinServer(UrsinaNetworkingServer):
         def on_client_disconnected(client):
             print(f"{client} disconnected !")
 
-    def send_updated_world_state(self, world_state: WorldState):
+    def send_updated_world_state(self, twin, environment):
         """
         Send a world state dictionary to the client
-        :param world_state:
+        :param twin:
+        :param environment:
         :return:
         """
-        updated_state = {key: world_state.twin.__dict__[key] for key in ["pos", "vel", "acc", "rot"]}
-        updated_state.update(world_state.twin.sensors)
+        updated_state = {key: twin.__dict__[key] for key in ["pos", "vel", "acc", "rot"]}
+        updated_state.update(twin.sensors)
 
         self.broadcast("new_position", updated_state)
 
-    def update(self, world_state: WorldState):
+    def update(self, twin, environment):
         """
         Send the world state to clients after processing any inbound network events
-        :param world_state:
+        :param twin:
+        :param environment:
         :return:
         """
         while len(self.events_manager.events) > 0:
             self.process_net_events()
 
-        self.send_updated_world_state(world_state)
+        self.send_updated_world_state(twin, environment)

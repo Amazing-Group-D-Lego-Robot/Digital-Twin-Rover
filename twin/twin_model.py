@@ -5,7 +5,7 @@ from scipy.spatial.transform import Rotation as R
 
 
 class TwinModel:
-    def __init__(self, sensors=None):
+    def __init__(self):
         # print("created new twin")
 
         # META INFO
@@ -26,23 +26,19 @@ class TwinModel:
         self.acc = np.array([0., 0., 0.])  # 3d acceleration vector
         self.rot = np.array([0., 0., 0.])  # rotation in degrees about each axis
 
-        if sensors is not None:
-            self.sensors = {name: 0 for name in sensors}  # dict of sensor name value pairs
-            self.sensor_deltas = {name: 0 for name in sensors}  # dict of sensor name value pairs
-        else:
-            self.sensors = dict()
-            self.sensor_deltas = dict()
-
         # Values that need to be derived / set at update:
         #   - self.pos
         #   - self.vel
         #   - self.acc
         #   - self.rot
 
+        self.sensors = dict()  # dict of sensors
+        self.sensor_deltas = dict()  # dict of sensor changes from last update
         self.update_funcs = []  # list of functions to execute every update step
 
-    def add_update_function(self, function):
-        self.update_funcs.append(function)
+    def set_sensors(self, sensors: list):
+        self.sensors = {key: 0 for key in sensors}
+        self.sensor_deltas = {key: 0 for key in sensors}
 
     def get_forwards(self):
         r = R.from_euler("xyz", self.rot, degrees=True)
@@ -58,9 +54,6 @@ class TwinModel:
             if key in self.sensors:
                 self.sensor_deltas[key] = sensor_data[key] - self.sensors[key]
                 self.sensors[key] = sensor_data[key]
-
-        for update_func in self.update_funcs:
-            update_func(self)
 
         if instruction is not None:
             # TODO: Update state with instruction when we have a structure for them
