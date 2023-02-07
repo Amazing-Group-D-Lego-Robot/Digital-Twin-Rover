@@ -6,6 +6,7 @@ import threading
 from controller.controller import Controller
 from time import sleep
 import os
+import sys
 
 
 class MainMenu:
@@ -19,7 +20,7 @@ class MainMenu:
         self.root.maxsize(width=500, height=500)
 
         # Get Menu Cover Image
-        self.title_img = Image.open("assets/MainMenuTitle.png")
+        self.title_img = Image.open("menu/assets/MainMenuTitle.png")
         self.title_img = self.title_img.resize((500, 112))
         self.title_img = ImageTk.PhotoImage(self.title_img)
 
@@ -56,6 +57,10 @@ class MainMenu:
         """Destroys an open window"""
         self.root.destroy()
 
+        # hacky solution to ursinanetworking not cleaning up its threads
+        os._exit(0)
+        sys.exit(0)
+
     def play_live(self):
         """Functionality for launching 'live' bot"""
         tk.messagebox.showinfo("Unavailable Menu Option", "Sorry this version is still in development")
@@ -81,7 +86,6 @@ class MainMenu:
         self.filename = None
 
     def start_offline_controller(self):
-        print("testA")
         self.controller = Controller()
         self.controller.load_data(self.filename)
 
@@ -91,16 +95,10 @@ class MainMenu:
         while self.controller.update():
             sleep(0.1)
 
+
     @staticmethod
     def start_offline_vis():
         sleep(1)
-        os.system("cd ../visualisation && python3 visualisation.py")
+        os.system("cd visualisation && python3 visualisation.py")
 
 
-def run_program():
-    start_menu = MainMenu()
-    start_menu.launch()
-
-
-if __name__ == "__main__":
-    run_program()
