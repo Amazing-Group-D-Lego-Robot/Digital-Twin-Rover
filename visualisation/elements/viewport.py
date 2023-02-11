@@ -5,6 +5,10 @@ class Viewport(FirstPersonController):
     """
     Class to abstract the FirstPersonController Ursina class, this allows a floating camera
     """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.speed = 10
+
     def input(self, key):
         """
         FirstPersonController input function override

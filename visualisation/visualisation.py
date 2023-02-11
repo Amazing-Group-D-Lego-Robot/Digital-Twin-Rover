@@ -5,6 +5,7 @@ from elements.menu import VisualMenu
 from elements.viewport import Viewport
 from elements.agent import Agent
 from elements.sensor_ray import SensorRay
+from elements.environment import SimulatedEnvironment
 
 Client = VisualClient()
 
@@ -66,6 +67,9 @@ viewport.position += (0, 0.4, 0)
 
 # Sensor drawing
 sensors = [SensorRay(agent, Vec3(0, 0, .5)), SensorRay(agent, Vec3(0, .5, 0))]
+
+# Environment
+environment = SimulatedEnvironment()
 
 # Agent trails
 pivot = Entity(parent=agent)
