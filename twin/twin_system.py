@@ -10,18 +10,25 @@ class TwinSystem:
         self.environment = TwinEnvironment()
         self.twin = DebugTwinModel()
 
-    def update(self, sensor_info=None, instruction=None):
+    def change_instruction(self, instruction: str):
+        """
+        Changes the current instruction being executed. Run this at the start of every new instruction!
+        :param instruction:
+        :return:
+        """
+        self.twin.change_instruction(instruction)
+
+    def update(self, sensor_info=None):
         """
         Update the state of the twin system based upon new truth's (sensor data) sent from the rover
 
         :param sensor_info: A pandas dataframe that contains a "timestamp" column, and other labeled sensor columns
-        :param instruction: A String containing the instruction that was just executed to lead to the sensor info
         :returns: A WorldState object containing the updated world state (used for controller visualisation)
         """
         # update the rover with new instruction and sensor info
         # return new updated world state
 
-        self.twin.update(sensor_info, instruction, self.environment)
+        self.twin.update(sensor_info, self.environment)
 
         return self.twin.copy(), self.environment.copy()
 

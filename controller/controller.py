@@ -1,4 +1,4 @@
-# CALLS METHODS FROM TWIN AND ROVER TO SEND INSTrUCTIONS / POLL SENSORS AND STATE
+# CALLS METHODS FROM TWIN AND ROVER TO SEND INSTRUCTIONS / POLL SENSORS AND STATE
 
 from agent.agent import AgentControl
 from twin.twin_system import TwinSystem
@@ -25,7 +25,8 @@ class Controller:
             return False
 
         # TODO: Add instructions to the dataset then feed them in here
-        self.twin_system.update(self.current_data.iloc[self.current_row], instruction=None)
+        #   self.twin_system.change_instruction("instruction here")
+        self.twin_system.update(self.current_data.iloc[self.current_row])
         self.current_row += 1
 
         self.server.update(self.twin_system.twin, self.twin_system.environment)

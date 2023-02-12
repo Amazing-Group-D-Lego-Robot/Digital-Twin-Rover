@@ -37,6 +37,10 @@ class TwinModel:
         self.sensors = dict()  # dict of sensors
         self.sensor_deltas = dict()  # dict of sensor changes from last update
 
+        self.memory = dict()
+        self.current_instruction = None
+        self.memory_buffer = []
+
     def set_sensors(self, sensors: list):
         self.sensors = {sensor.name: sensor for sensor in sensors}
         self.sensor_deltas = {sensor.name: 0 for sensor in sensors}
@@ -59,31 +63,38 @@ class TwinModel:
         })
         return ret
 
-    def _update(self, sensor_data: dict, instruction: str, environment: TwinEnvironment):
+    def change_instruction(self, instruction: str):
+        # TODO: add normalisation for instruction length / data
+        if self.current_instruction is not None:
+            if self.current_instruction in self.memory:
+                self.memory[self.current_instruction].append(self.memory_buffer)
+            else:
+                self.memory[self.current_instruction] = [self.memory_buffer]
+
+        self.current_instruction = instruction
+        self.memory_buffer = []
+
+    def _update(self, sensor_data: dict, environment: TwinEnvironment):
         """
         To be overwritten by child classes
 
         :param sensor_data:
-        :param instruction:
         :param environment:
         :return: None
         """
         pass
 
-    def update(self, sensor_data, instruction: str, environment: TwinEnvironment):
-        # TODO: this only associates one timestep with an instruction, it needs to associate the whole instruction's
-        #       execution and deltas
+    def update(self, sensor_data, environment: TwinEnvironment):
         # update state based upon truths and environment
         for key, item in sensor_data.items():
             if key in self.sensors:
                 self.sensor_deltas[key] = sensor_data[key] - self.sensors[key].value
                 self.sensors[key].value = sensor_data[key]
 
-        self._update(sensor_data, instruction, environment)
+        self._update(sensor_data, environment)
 
-        if instruction is not None:
-            # TODO: do something here
-            pass
+        if self.current_instruction is not None:
+            self.memory_buffer.append(sensor_data)
 
     def predict_next(self, environment=None, instructions=None):
         # start with the current state
