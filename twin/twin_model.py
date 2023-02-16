@@ -3,6 +3,8 @@ from time import time_ns
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
+from twin.twin_environment import TwinEnvironment
+
 
 class TwinModel:
     def __init__(self):
@@ -20,62 +22,86 @@ class TwinModel:
         #           \ |
         #            \|
         #             *---------- x(right)
-        self.forwards = np.array([0., 0., 1.])  # 3d unit vector pointing in our forwards direction
 
         self.pos = np.array([0., 0., 0.])  # 3d position vector
         self.vel = np.array([0., 0., 0.])  # 3d velocity vector
         self.acc = np.array([0., 0., 0.])  # 3d acceleration vector
         self.rot = np.array([0., 0., 0.])  # rotation in degrees about each axis
 
-        # MOTORS
-        self.motor_rots = [0, 0, 0, 0]  # motor rotation angles in degrees
+        # Values that need to be derived / set at update:
+        #   - self.pos
+        #   - self.vel
+        #   - self.acc
+        #   - self.rot
 
-        # SENSORS
-        self.distance_sensor = 0  # number of mm to the nearest object ahead of the sensor
+        self.sensors = dict()  # dict of sensors
+        self.sensor_deltas = dict()  # dict of sensor changes from last update
 
-        # PROPERTIES
-        self.wheel_diameter = 0.088  # diameter of the driving wheels in m
-        self.movement_per_degree = (self.wheel_diameter * 3.141592654) / 360  # m of movement with 1 degree of turn
+        self.memory = dict()
+        self.current_instruction = None
+        self.memory_buffer = []
+
+    def set_sensors(self, sensors: list):
+        self.sensors = {sensor.name: sensor for sensor in sensors}
+        self.sensor_deltas = {sensor.name: 0 for sensor in sensors}
+
+    def get_forwards(self):
+        r = R.from_euler("xyz", self.rot, degrees=True)
+        return r.apply(np.array([0., 0., 1.]))
 
     def copy(self):
         # copy function for making predictions
         return deepcopy(self)
 
-    def update(self, sensor_data, instruction, environment):
+    def get_sensors_and_properties(self):
+        ret = {key: self.sensors[key].value for key in self.sensors.keys()}
+        ret.update({
+            "_pos": self.pos.copy(),
+            "_vel": self.vel.copy(),
+            "_acc": self.acc.copy(),
+            "_rot": self.rot.copy()
+        })
+        return ret
+
+    def change_instruction(self, instruction: str):
+        # TODO: add normalisation for instruction length / data
+        if self.current_instruction is not None:
+            if self.current_instruction in self.memory:
+                self.memory[self.current_instruction].append(self.memory_buffer)
+            else:
+                self.memory[self.current_instruction] = [self.memory_buffer]
+
+        self.current_instruction = instruction
+        self.memory_buffer = []
+
+    def _update(self, sensor_data: dict, environment: TwinEnvironment):
+        """
+        To be overwritten by child classes
+
+        :param sensor_data:
+        :param environment:
+        :return: None
+        """
+        pass
+
+    def update(self, sensor_data, environment: TwinEnvironment):
         # update state based upon truths and environment
+        for key, item in sensor_data.items():
+            if key in self.sensors:
+                self.sensor_deltas[key] = sensor_data[key] - self.sensors[key].value
+                self.sensors[key].value = sensor_data[key]
 
-        motor_deltas = [0, 0, 0, 0]
+        self._update(sensor_data, environment)
 
-        if sensor_data is not None:
-            # TODO: Update sensors when we have a structure for them
-            motor_deltas[0] = sensor_data["A"] - self.motor_rots[0]
-            motor_deltas[1] = sensor_data["B"] - self.motor_rots[1]
-            motor_deltas[2] = sensor_data["C"] - self.motor_rots[2]
-
-            self.motor_rots[0] = sensor_data["A"]
-            self.motor_rots[1] = sensor_data["B"]
-            self.motor_rots[2] = sensor_data["C"]
-
-            self.rot[1] = sensor_data["Yaw"]
-            r = R.from_euler("y", self.rot[1], degrees=True)
-            self.forwards = r.apply(np.array([0., 0., 1.]))
-
-        if instruction is not None:
-            # TODO: Update state with instruction when we have a structure for them
-            pass
-
-        self.pos += self.forwards * (((motor_deltas[0] + motor_deltas[1]) / 2) * self.movement_per_degree)
-        #print(self.forwards * (((motor_deltas[0] + motor_deltas[1]) / 2) * self.movement_per_degree))
+        if self.current_instruction is not None:
+            self.memory_buffer.append(sensor_data)
 
     def predict_next(self, environment=None, instructions=None):
-        # predict based upon a possible new instruction and simulated sensor data gathered
-        # from the environment
-
         # start with the current state
         prediction = self.copy()
 
         # PREDICTION AREA
-
+        # TODO: do something here
         # END OF PREDICTION AREA
 
         return prediction

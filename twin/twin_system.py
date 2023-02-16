@@ -1,29 +1,36 @@
 # whole twin system, environment and all
 from copy import deepcopy
 
-from twin.worldstate import WorldState
+from twin.twin_designs.debug_twin import DebugTwinModel
+from twin.twin_environment import TwinEnvironment
 
 
 class TwinSystem:
     def __init__(self):
-        # print("created a new twin system")
+        self.environment = TwinEnvironment()
+        self.twin = DebugTwinModel()
 
-        self.worldstate = WorldState()
+    def change_instruction(self, instruction: str):
+        """
+        Changes the current instruction being executed. Run this at the start of every new instruction!
+        :param instruction:
+        :return:
+        """
+        self.twin.change_instruction(instruction)
 
-    def update(self, sensor_info=None, instruction=None):
+    def update(self, sensor_info=None):
         """
         Update the state of the twin system based upon new truth's (sensor data) sent from the rover
 
         :param sensor_info: A pandas dataframe that contains a "timestamp" column, and other labeled sensor columns
-        :param instruction: A String containing the instruction that was just executed to lead to the sensor info
         :returns: A WorldState object containing the updated world state (used for controller visualisation)
         """
         # update the rover with new instruction and sensor info
         # return new updated world state
 
-        self.worldstate.twin.update(sensor_info, instruction, self.worldstate.environment)
+        self.twin.update(sensor_info, self.environment)
 
-        return deepcopy(self.worldstate)
+        return self.twin.copy(), self.environment.copy()
 
     def predict_next(self, instructions=None):
         """
@@ -36,9 +43,7 @@ class TwinSystem:
         """
         # predict next n time steps of the twin model and returns them with the current environment
 
-        prediction = WorldState()
-        prediction.environment = self.worldstate.environment.copy()
-        prediction.twin = self.worldstate.twin.predict_next(environment=self.worldstate.environment,
-                                                            instructions=instructions)
+        environment = self.environment.copy()
+        twin = self.twin.predict_next(environment=self.environment, instructions=instructions)
 
-        return prediction
+        return environment, twin

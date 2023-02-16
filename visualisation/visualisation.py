@@ -43,7 +43,7 @@ def update():
 
 
 # Init ursina
-app = Ursina(forced_aspect_ratio=4 / 3, size=(1000, 1000), vsync=False)
+app = Ursina(forced_aspect_ratio=4 / 3, size=(1000, 1000), vsync=True)
 skybox = load_texture("assets/mars_skybox.png")
 sky = Sky(texture=skybox, color=color.rgb(185, 157, 118))
 menu = VisualMenu()
