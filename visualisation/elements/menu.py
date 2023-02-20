@@ -30,26 +30,26 @@ class VisualMenu:
         :param world_state:
         :return:
         """
-        self.x_pos = world_state["pos"][0]
-        self.y_pos = world_state["pos"][1]
-        self.z_pos = world_state["pos"][2]
+        self.x_pos = world_state["_pos"][0]
+        self.y_pos = world_state["_pos"][1]
+        self.z_pos = world_state["_pos"][2]
 
-        self.x_rot = world_state["rot"][0]
-        self.y_rot = world_state["rot"][1]
-        self.z_rot = world_state["rot"][2]
+        self.x_rot = world_state["_rot"][0]
+        self.y_rot = world_state["_rot"][1]
+        self.z_rot = world_state["_rot"][2]
 
-        self.x_vel = world_state["vel"][0]
-        self.y_vel = world_state["vel"][1]
-        self.z_vel = world_state["vel"][2]
+        self.x_vel = world_state["_vel"][0]
+        self.y_vel = world_state["_vel"][1]
+        self.z_vel = world_state["_vel"][2]
 
-        self.x_acc = world_state["acc"][0]
-        self.y_acc = world_state["acc"][1]
-        self.z_acc = world_state["acc"][2]
+        self.x_acc = world_state["_acc"][0]
+        self.y_acc = world_state["_acc"][1]
+        self.z_acc = world_state["_acc"][2]
 
-        self.motor_0 = world_state["motor_rots"][0]
-        self.motor_1 = world_state["motor_rots"][1]
-        self.motor_2 = world_state["motor_rots"][2]
-        self.motor_3 = world_state["motor_rots"][3]
+        self.motor_0 = world_state["A"]
+        self.motor_1 = world_state["B"]
+        self.motor_2 = world_state["C"]
+        self.motor_3 = world_state["D"]
 
     def get_pos(self):
         """
