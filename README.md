@@ -15,4 +15,3 @@ The visualisation is created using Ursina engine which is open source under the 
 - [Ursina Networking](https://pypi.org/project/UrsinaNetworking/)
 - Tkinter needs installing on linux via the following command
 > sudo apt install python3-tk -y
-- 
