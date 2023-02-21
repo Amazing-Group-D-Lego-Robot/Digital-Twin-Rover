@@ -11,6 +11,7 @@ The visualisation is created using Ursina engine which is open source under the 
 - \<ESC\> Quits the visualisation
 
 ## Dependencies
+- `pip install -r requirements.txt`
 - [Ursina](https://pypi.org/project/ursina/) 
 - [Ursina Networking](https://pypi.org/project/UrsinaNetworking/)
 - Tkinter needs installing on linux via the following command
