@@ -3,6 +3,9 @@ The main repository for the whole digital twin agent.
 
 ## ALWAYS RUN `main.py`, AND USE FULL IMPORT PATHS FROM MAIN
 
+## Documentation
+Automatically generated and updated [here](https://amazing-group-d-lego-robot.github.io/Digital-Twin-Rover/).
+
 ## Visualisation
 The visualisation is created using Ursina engine which is open source under the MIT License.
 
