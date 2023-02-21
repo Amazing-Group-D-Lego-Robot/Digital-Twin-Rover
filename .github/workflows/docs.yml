@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Setup headless display
+        uses: pyvista/setup-headless-display-action@v1
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
