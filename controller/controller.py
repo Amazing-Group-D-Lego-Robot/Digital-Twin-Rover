@@ -13,7 +13,12 @@ class Controller:
         self.server = TwinServer()
 
         self.current_data = None
+
+        self.predicted_state = None
+        self.predicted_env = None
+
         self.current_row = 0
+
 
     def update(self) -> bool:
         if self.current_data is None:
@@ -31,6 +36,26 @@ class Controller:
         self.server.update(self.twin_system.twin, self.twin_system.environment)
 
         return True
+
+    def predict(self) -> bool:
+        if self.predicted_state is None:
+            print("Load a prediction before running predict!")
+            return False
+
+        if self.current_row >= len(self.predicted_state):
+            return False
+
+        self.twin_system.twin.update_from_prediction(self.predicted_state.iloc[self.current_row],
+                                                     cols=self.predicted_state.columns.values.tolist())
+        self.current_row += 1
+
+        self.server.update(self.twin_system.twin, self.twin_system.environment)
+
+        return True
+
+    def load_prediction(self, instructions):
+        self.predicted_env, self.predicted_state = self.twin_system.predict_next(instructions)
+        self.current_row = 0
 
     def load_data(self, path):
         """

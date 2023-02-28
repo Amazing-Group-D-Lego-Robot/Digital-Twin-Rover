@@ -44,6 +44,6 @@ class TwinSystem:
         # predict next n time steps of the twin model and returns them with the current environment
 
         environment = self.environment.copy()
-        twin = self.twin.predict_next(environment=self.environment, instructions=instructions)
+        prediction = self.twin.predict_next(environment=self.environment, instructions=instructions)
 
-        return environment, twin
+        return environment, prediction

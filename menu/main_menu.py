@@ -33,6 +33,7 @@ class MainMenu:
         # Create the buttons
         self.buttons = [tk.Button(text="Play Offline Scenario", command=self.play_offline, font="Helvetica"),
                         tk.Button(text="Play Live Scenario", command=self.play_live, font="Helvetica"),
+                        tk.Button(text="Play Prediction", command=self.play_prediction, font="Helvetica"),
                         tk.Button(text="Exit", command=self.close, font="Helvetica")]
 
     def _packer(self):
@@ -86,6 +87,25 @@ class MainMenu:
         thread_vis.join()
         self.filename = None
 
+    def play_prediction(self):
+        """Functionality for launching predictive play"""
+
+        while self.filename is None:
+            self.filename = fd.askopenfilename()
+
+        # create threads
+        thread_controller = threading.Thread(target=self.start_prediction)
+        thread_vis = threading.Thread(target=self.start_offline_vis)
+
+        # start threads
+        thread_controller.start()
+        thread_vis.start()
+
+        # end threads
+        thread_controller.join()
+        thread_vis.join()
+        self.filename = None
+
     def start_offline_controller(self):
         self.controller = Controller()
         self.controller.load_data(self.filename)
@@ -94,6 +114,24 @@ class MainMenu:
 
         # run the controller until we reach the end of the dataset
         while self.controller.update():
+            sleep(0.1)
+
+    def start_prediction(self):
+        self.controller = Controller()
+        with open(self.filename, "r") as f:
+            instructions = f.readlines()
+
+        for i in range(len(instructions)):
+            instructions[i] = instructions[i].rstrip()
+
+        instructions = list(filter(None, instructions))
+
+        self.controller.load_prediction(instructions)
+
+        sleep(2)
+
+        # run the controller until we reach the end of the dataset
+        while self.controller.predict():
             sleep(0.1)
 
     @staticmethod
