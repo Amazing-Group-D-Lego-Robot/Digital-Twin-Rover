@@ -1,5 +1,7 @@
 import numpy as np
+import pandas as pd
 
+from twin.predictors.predictor import Predictor
 from twin.sensors.color_sensor import ColorSensor
 from twin.sensors.sensor import Sensor
 from twin.sensors.distance_sensor import DistanceSensor
@@ -11,6 +13,9 @@ from twin.twin_model import TwinModel
 class DebugTwinModel(TwinModel):
     def __init__(self):
         super().__init__()
+
+        # PREDICTOR
+        self.predictor = DebugPredictor()
 
         # SENSORS
         self.set_sensors([
@@ -38,3 +43,22 @@ class DebugTwinModel(TwinModel):
 
         self.pos += self.get_forwards() * (
                 ((self.sensor_deltas["A"] + self.sensor_deltas["B"]) / 2) * self.movement_per_degree)
+
+
+class DebugPredictor(Predictor):
+    def __init__(self):
+        # memory and storage goes here
+        pass
+
+    def predict_instruction(self, instruction: str, current_state: pd.DataFrame) -> pd.DataFrame:
+        ret = current_state.copy()
+        ret["z_pos"] += 0.01
+        ret["A"] += 0.1
+
+        for i in range(99):
+            temp = ret.iloc[-1:].copy()
+            temp["z_pos"] += 0.01
+            temp["A"] += 0.1
+            ret = pd.concat([ret, temp])
+
+        return ret

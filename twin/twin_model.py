@@ -1,8 +1,10 @@
 from copy import deepcopy
 from time import time_ns
 import numpy as np
+import pandas as pd
 from scipy.spatial.transform import Rotation as R
 
+from twin.predictors.predictor import Predictor
 from twin.twin_environment import TwinEnvironment
 
 
@@ -41,6 +43,8 @@ class TwinModel:
         self.current_instruction = None
         self.memory_buffer = []
 
+        self.predictor = None
+
     def set_sensors(self, sensors: list):
         self.sensors = {sensor.name: sensor for sensor in sensors}
         self.sensor_deltas = {sensor.name: 0 for sensor in sensors}
@@ -62,6 +66,24 @@ class TwinModel:
             "_rot": self.rot.copy()
         })
         return ret
+
+    def get_current_state_as_df(self):
+        ret = {key: [self.sensors[key].value] for key in self.sensors.keys()}
+        ret.update({
+            "x_pos": [self.pos.copy()[0]],
+            "x_vel": [self.vel.copy()[0]],
+            "x_acc": [self.acc.copy()[0]],
+            "x_rot": [self.rot.copy()[0]],
+            "y_pos": [self.pos.copy()[0]],
+            "y_vel": [self.vel.copy()[0]],
+            "y_acc": [self.acc.copy()[0]],
+            "y_rot": [self.rot.copy()[0]],
+            "z_pos": [self.pos.copy()[0]],
+            "z_vel": [self.vel.copy()[0]],
+            "z_acc": [self.acc.copy()[0]],
+            "z_rot": [self.rot.copy()[0]]
+        })
+        return pd.DataFrame.from_dict(ret)
 
     def change_instruction(self, instruction: str):
         # TODO: add normalisation for instruction length / data
@@ -96,12 +118,30 @@ class TwinModel:
         if self.current_instruction is not None:
             self.memory_buffer.append(sensor_data)
 
+    def update_from_prediction(self, prediction, cols):
+        for col in cols:
+            if col not in ["x_pos", "x_vel", "x_acc", "x_rot", "y_pos", "y_vel", "y_acc", "y_rot", "z_pos", "z_vel",
+                           "z_acc", "z_rot"]:
+                self.sensors[col].value = prediction[col]
+
+        self.pos = np.array([prediction["x_pos"], prediction["y_pos"], prediction["z_pos"]])
+        self.vel = np.array([prediction["x_vel"], prediction["y_vel"], prediction["z_vel"]])
+        self.acc = np.array([prediction["x_acc"], prediction["y_acc"], prediction["z_acc"]])
+        self.rot = np.array([prediction["x_rot"], prediction["y_rot"], prediction["z_rot"]])
+
     def predict_next(self, environment=None, instructions=None):
+        # TODO: use the environment in the prediction
+
         # start with the current state
-        prediction = self.copy()
+        prediction = self.get_current_state_as_df()  # updated each instruction
 
         # PREDICTION AREA
-        # TODO: do something here
+        if self.predictor is not None:
+            # for each instruction, predict 100 states with the last state in "prediction" acting as the current_state
+            # then append the predictions to the end of "prediction"
+            for instruction in instructions:
+                prediction = \
+                    pd.concat([prediction, self.predictor.predict_instruction(instruction, prediction.iloc[-1:])])
         # END OF PREDICTION AREA
 
         return prediction
