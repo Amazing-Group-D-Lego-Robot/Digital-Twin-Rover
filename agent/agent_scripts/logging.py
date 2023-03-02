@@ -75,16 +75,13 @@ def handle_light_status(color, intensity):
 def handle_beep(note, time):
         primeHub.speaker.beep(int(note), float(time))
 
+def execute_instruction(instruction_string):
+        print(instruction_string)
+        if "\#n" not in instruction_string:
+                interpret_instruction(instruction_string.strip())
 
-with open("data/sensor_log.txt", "w") as data_file:
-        with open("data/instruction_set.txt","r") as instruction_file:
-                instructions = instruction_file.readlines()
-                for instruction_string in instructions:
-                        #EXECUTE INSTRUCTION THEN SENSOR
-                        print(instruction_string)
-                        if "\#n" not in instruction_string:
-                                interpret_instruction(instruction_string.strip())
-                        front_r, front_g, front_b, front_intensity = front_color.get_rgb_intensity()
+def log_sensor_data(data_file):
+        front_r, front_g, front_b, front_intensity = front_color.get_rgb_intensity()
                         rear_r, rear_g, rear_b, rear_intensity = rear_color.get_rgb_intensity()
                         accelerometer_x, accelerometer_y, accelerometer_z = hub.status()['accelerometer']
                         yaw, pitch, roll = hub.status()['yaw_pitch_roll']
@@ -118,6 +115,17 @@ with open("data/sensor_log.txt", "w") as data_file:
                         data_bytes = bytes("\n".join(data_strings), "utf-8")
                         data_file.write(data_bytes)
                         data_file.flush()
+        
+with open("data/sensor_log.txt", "w") as data_file:
+        with open("data/instruction_set.txt","r") as instruction_file:
+                instructions = instruction_file.readlines()
+                for instruction_string in instructions:
+                        #EXECUTE INSTRUCTION THEN SENSOR
+                        
+                        # if previous instruction finished
+                                execute_instruction(instruction_string)
+                        log_sensor_data(data_file)
+                        
 
 
 
