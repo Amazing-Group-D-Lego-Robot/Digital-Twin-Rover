@@ -117,7 +117,7 @@ def execute_instruction(instruction_string):
         time_last_instruction = time.ticks_ms()
 
 def log_instruction(data_file, instruction_string):
-        data_bytes = bytes("I:"+instruction_string.strip(), "utf-8")
+        data_bytes = bytes("I:"+instruction_string.strip()+"\n", "utf-8")
         data_file.write(data_bytes)
         data_file.flush()
 
@@ -151,6 +151,7 @@ def log_sensor_data(data_file):
                 steering_motor.get_position(),
                 driving_motor.get_position(),
                 force_sensor.get_force_newton(),
+                "\n"
         ]
         data_strings = [str(x) for x in data]
 
