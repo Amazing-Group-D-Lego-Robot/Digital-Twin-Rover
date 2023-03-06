@@ -3,19 +3,20 @@ import re
 
 def parse_input_data(input_data: str):
 
-    entries = input_data.split(',')
+    entries = input_data.split('\n')
 
-    stripping_regex = re.compile(r"(?<=')[^'\n]*(?=\n')")
+    # stripping_regex = re.compile(r"(?<=')[^'\n]*(?=\n')")
     
-    stripped_entries = [stripping_regex.search(entry).group(0) for entry in entries]
+    # stripped_entries = [stripping_regex.search(entry).group(0) for entry in entries]
     
     instructions = []
     instruction = []
-    for entry in stripped_entries:
+    for entry in entries:
         if entry[:2] == "I:":
             instructions.append(instruction)
             instruction = []
         instruction.append(entry)
+    instructions.append(instruction)
     instructions = instructions[1:]
 
     structured_data = []
@@ -61,9 +62,9 @@ def parse_input_data(input_data: str):
         }
         structured_data.append(structured_datum)
 
+    breakpoint()
     return structured_data
 
 def structured_input_data_to_pandas(input_data: list):
-    breakpoint()
     pass
 

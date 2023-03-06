@@ -1,6 +1,7 @@
 from spike import PrimeHub, LightMatrix, Button, StatusLight, ForceSensor, MotionSensor, Speaker, ColorSensor, App, DistanceSensor, Motor, MotorPair
 from spike.control import wait_for_seconds, wait_until, Timer
 from math import *
+import os
 
 import hub
 
@@ -112,6 +113,7 @@ def handle_beep(note, time):
         primeHub.speaker.beep(int(note), float(time))
 
 def execute_instruction(instruction_string):
+        global time_last_instruction
         if "\#n" not in instruction_string:
                 interpret_instruction(instruction_string.strip())
         time_last_instruction = time.ticks_ms()
@@ -124,7 +126,7 @@ def log_instruction(data_file, instruction_string):
 def log_sensor_data(data_file):
         global time_last_instruction
         front_r, front_g, front_b, front_intensity = front_color.get_rgb_intensity()
-        rear_r, rear_g, rear_b, rear_intensity = rear_color.get_rgb_intensity()
+        rear_r, rear_g, rear_b, rear_intensity = rear_color.get_rgb_intensity()""
         accelerometer_x, accelerometer_y, accelerometer_z = hub.status()['accelerometer']
         yaw, pitch, roll = hub.status()['yaw_pitch_roll']
         gyro_x, gyro_y, gyro_z = hub.status()['gyroscope']
@@ -213,14 +215,14 @@ with open("data/sensor_log.txt", "w") as data_file:
                         execute_instruction(instruction_string)
 
                         while not is_instruction_completed():
-                                print("measured:", driving_motor.get_degrees_counted(), "/", driving_motor_target_angle)
-                                print("measured:", steering_motor.get_degrees_counted(), "/", steering_motor_target_angle)
+                                #print("measured:", driving_motor.get_degrees_counted(), "/", driving_motor_target_angle)
+                                #print("measured:", steering_motor.get_degrees_counted(), "/", steering_motor_target_angle)
                                 log_sensor_data(data_file)
                         driving_motor.stop()
                         steering_motor.stop()
-                        print("instruction is done, measured: ", driving_motor.get_degrees_counted(), "/", driving_motor_target_angle)
-                        print("instruction is done, measured: ", steering_motor.get_degrees_counted(), "/", steering_motor_target_angle)
-                        
+                        #print("instruction is done, measured: ", driving_motor.get_degrees_counted(), "/", driving_motor_target_angle)
+                        #print("instruction is done, measured: ", steering_motor.get_degrees_counted(), "/", steering_motor_target_angle)
+                        print(os.stat("data/sensor_log.txt"))
                         
 
 
