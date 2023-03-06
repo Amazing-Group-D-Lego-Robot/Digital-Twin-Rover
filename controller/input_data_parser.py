@@ -25,8 +25,6 @@ def parse_input_data(input_data: str):
 
         instruction_measurements = instruction[1:]
         number_of_measurements = len(instruction_measurements)//22
-        print(len(instruction_measurements))
-        pass
         
         structured_measurements = []
         for i in range(number_of_measurements):
@@ -70,5 +68,6 @@ def parse_input_data(input_data: str):
 
 
 
-    return True
+
+    return structured_data
 
