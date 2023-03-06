@@ -61,13 +61,9 @@ def parse_input_data(input_data: str):
         }
         structured_data.append(structured_datum)
 
-
-
-
-
-
-
-
-
     return structured_data
+
+def structured_input_data_to_pandas(input_data: list):
+    breakpoint()
+    pass
 
