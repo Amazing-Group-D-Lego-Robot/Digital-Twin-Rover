@@ -63,39 +63,3 @@ def parse_input_data(input_data: str):
         structured_data.append(structured_datum)
 
     return structured_data
-
-def structured_input_data_to_pandas(input_data: list):
-
-    columns = ['time',
-            'front_r',
-            'front_g',
-            'front_b',
-            'front_intensity',
-            'rear_r',
-            'rear_g',
-            'rear_b',
-            'rear_intensity',
-            'distance_sensor',
-            'accelerometer_x',
-            'accelerometer_y',
-            'accelerometer_z',
-            'yaw',
-            'pitch',
-            'roll',
-            'gyro_x',
-            'gyro_y',
-            'gyro_z',
-            'steering_motor_position',
-            'driving_motor_position',
-            'force_sensor_newton']
-
-    for entry in input_data:
-        instruction = entry["instruction"]
-
-        entry_dataframe = pd.DataFrame(data=entry["measurements"])
-        entry_dataframe[columns] = entry_dataframe[columns].apply(pd.to_numeric(errors="ignore"))
-        breakpoint()
-    result = pd.DataFrame(data = input_data, dtype= [])
-    breakpoint()
-    pass
-
