@@ -5,7 +5,7 @@ def parse_input_data(input_data: str) -> list[dict]:
     """
     Parses input data to a dictionary as a list
     :param input_data: a string containing the instruction and 22 headers
-    :return: A list of dictionaries that has a string instruction as a key and a value as a dictionary
+    :return: A list of dictionaries that has a string instruction as a key and a value as a pandas dataframe
     """
 
     entries = input_data.split('\n')
