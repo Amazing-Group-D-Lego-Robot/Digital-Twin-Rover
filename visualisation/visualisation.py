@@ -59,14 +59,15 @@ ground = Entity(model='plane', collider='box', scale=2048, texture='grass_tintab
                 texture_scale=(32, 32))
 
 agent_offset = [0, -0.04, 0]
-agent = Agent(model="RoverDebug", texture="rover_box", z=agent_offset[2], origin_y=agent_offset[1])
+agent = Agent(model="legotest", texture="legotest_tex", z=agent_offset[2], origin_y=agent_offset[1])
 
 viewport = Viewport(speed=1, x=0, z=-0.5)
 viewport.gravity = 0
 viewport.position += (0, 0.4, 0)
 
 # Sensor drawing
-sensors = [SensorRay(agent, Vec3(0, 0, .5)), SensorRay(agent, Vec3(0, .5, 0))]
+sensors = [SensorRay(agent, Vec3(0, 0.1, 0.17), direction=Vec3(0, 0, 0.05)),
+           SensorRay(agent, Vec3(0, 0.1, -0.17), direction=Vec3(0, 0, -.5))]
 
 # Environment
 environment = SimulatedEnvironment()

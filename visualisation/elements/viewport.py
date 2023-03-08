@@ -7,7 +7,7 @@ class Viewport(FirstPersonController):
     """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.speed = 10
+        self.speed = 1
 
     def input(self, key):
         """
