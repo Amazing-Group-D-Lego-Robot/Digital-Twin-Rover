@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def parse_input_data(input_data: str):
     entries = input_data.split('\n')
 
@@ -18,22 +19,21 @@ def parse_input_data(input_data: str):
     instructions = instructions[1:]
 
     structured_data = []
+    headers = ["time", "front_r", "front_g", "front_b", "front_intensity", "rear_r", "rear_g", "rear_b",
+               "rear_intensity", "distance_sensor", "accelerometer_x", "accelerometer_y", "accelerometer_z", "yaw",
+               "pitch", "roll", "gyro_x", "gyro_y", "gyro_z", "steering_motor_position", "driving_motor_position",
+               "force_sensor_newton"]
     for instruction in instructions:
         instruction_string = instruction[0]
 
         instruction_measurements = instruction[1:]
         number_of_measurements = len(instruction_measurements) // 22
-        headers = ["time", "front_r", "front_g", "front_b", "front_intensity", "rear_r", "rear_g", "rear_b",
-                   "rear_intensity", "distance_sensor", "accelerometer_x", "accelerometer_y", "accelerometer_z", "yaw",
-                   "pitch", "roll", "gyro_x", "gyro_y", "gyro_z", "steering_motor_position", "driving_motor_position",
-                   "force_sensor_newton"]
         structured_measurements = pd.DataFrame(columns=headers)
         for i in range(number_of_measurements):
             measurements = instruction_measurements[i * 22:(i + 1) * 22]
             measurements = [[None if m == 'None' else int(m) for m in measurements]]
-            row = pd.DataFrame(measurements,columns=headers)
+            row = pd.DataFrame(measurements, columns=headers)
             structured_measurements = pd.concat([structured_measurements, row])
-            break
 
         structured_datum = {
             "instruction": instruction_string,
