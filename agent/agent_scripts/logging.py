@@ -21,7 +21,7 @@ DATA_FILEPATH = "data/sensor_log.txt"
 INSTRUCTION_FILEPATH = "data/instruction_set_2.txt"
 
 front_color = ColorSensor('B')
-down_color = ColorSensor('D')
+bottom_color = ColorSensor('D')
 distance_sensor = DistanceSensor('E')
 force_sensor = ForceSensor('F')
 
@@ -128,7 +128,7 @@ def log_instruction(data_file, instruction_string):
 def log_sensor_data(data_file):
         global time_last_instruction
         front_r, front_g, front_b, front_intensity = front_color.get_rgb_intensity()
-        down_r, down_g, down_b, down_intensity = down_color.get_rgb_intensity()
+        bottom_r, bottom_g, bottom_b, bottom_intensity = bottom_color.get_rgb_intensity()
         accelerometer_x, accelerometer_y, accelerometer_z = hub.status()['accelerometer']
         yaw, pitch, roll = hub.status()['yaw_pitch_roll']
         gyro_x, gyro_y, gyro_z = hub.status()['gyroscope']
@@ -138,10 +138,10 @@ def log_sensor_data(data_file):
                 front_g,
                 front_b,
                 front_intensity,
-                down_r,
-                down_g,
-                down_b,
-                down_intensity,
+                bottom_r,
+                bottom_g,
+                bottom_b,
+                bottom_intensity,
                 distance_sensor.get_distance_cm(),
                 accelerometer_x,
                 accelerometer_y,
@@ -203,10 +203,26 @@ def is_instruction_completed():
         return True
         
 
+def color_interrupt(color_sensor):
+        return color_sensor.get_color() == 'black'    
+
+def distance_interrupt(distance_sensor):
+        return distance_sensor.get_distance_cm()<5
+
+def check_interrupt():
+        if color_interrupt(bottom_color):
+                interrupt_string+="Colour"
+        elif distance_interrupt(distance_sensor):
+                interrupt_string+="Distance"
+        else:
+                interrupt_string = None
+        return interrupt_string
+                
+
 print("start")
 print(wait_until)
 with open(DATA_FILEPATH, "w") as data_file:
-        with open(INSTRUCTION_FILEPATH,"r") as instruction_file:
+        with open(INSTRUCTION_FILEPATH, "r") as instruction_file:
                 instructions = instruction_file.readlines()
                 for instruction_string in instructions:
                         #EXECUTE INSTRUCTION THEN SENSOR
@@ -223,6 +239,9 @@ with open(DATA_FILEPATH, "w") as data_file:
                         #print("instruction is done, measured: ", driving_motor.get_degrees_counted(), "/", driving_motor_target_angle)
                         #print("instruction is done, measured: ", steering_motor.get_degrees_counted(), "/", steering_motor_target_angle)
                         print(os.stat(DATA_FILEPATH))
+                        if stop_agent:
+                                print("STOPPING!!!")
+                                break
                         
 
 
