@@ -16,9 +16,12 @@ timer = Timer()
 wait_until = None
 time_last_instruction = time.ticks_ms()
 
+STEERING_PERMITTED_OFFSET = 10
+DATA_FILEPATH = "data/sensor_log.txt"
+INSTRUCTION_FILEPATH = "data/instruction_set_2.txt"
 
 front_color = ColorSensor('B')
-rear_color = ColorSensor('D')
+down_color = ColorSensor('D')
 distance_sensor = DistanceSensor('E')
 force_sensor = ForceSensor('F')
 
@@ -26,7 +29,6 @@ steering_motor = Motor('A')
 driving_motor = Motor('C')
 
 steering_center_angle = steering_motor.get_degrees_counted()
-steering_permitted_offset = 5
 
 driving_center_angle = driving_motor.get_degrees_counted()
 
@@ -71,7 +73,7 @@ def handle_motor(index, speed, change_in_angle):
                 motor = steering_motor
 
                 print("change in angle:", change_in_angle)
-                steering_motor_target_angle = clamp(steering_motor.get_degrees_counted()+change_in_angle, steering_center_angle-steering_permitted_offset, steering_center_angle+steering_permitted_offset)
+                steering_motor_target_angle = clamp(steering_motor.get_degrees_counted()+change_in_angle, steering_center_angle-STEERING_PERMITTED_OFFSET, steering_center_angle+STEERING_PERMITTED_OFFSET)
                 if change_in_angle > 0:
                         steering_motor_is_forward = True
                 else:
@@ -126,7 +128,7 @@ def log_instruction(data_file, instruction_string):
 def log_sensor_data(data_file):
         global time_last_instruction
         front_r, front_g, front_b, front_intensity = front_color.get_rgb_intensity()
-        rear_r, rear_g, rear_b, rear_intensity = rear_color.get_rgb_intensity()
+        down_r, down_g, down_b, down_intensity = down_color.get_rgb_intensity()
         accelerometer_x, accelerometer_y, accelerometer_z = hub.status()['accelerometer']
         yaw, pitch, roll = hub.status()['yaw_pitch_roll']
         gyro_x, gyro_y, gyro_z = hub.status()['gyroscope']
@@ -136,10 +138,10 @@ def log_sensor_data(data_file):
                 front_g,
                 front_b,
                 front_intensity,
-                rear_r,
-                rear_g,
-                rear_b,
-                rear_intensity,
+                down_r,
+                down_g,
+                down_b,
+                down_intensity,
                 distance_sensor.get_distance_cm(),
                 accelerometer_x,
                 accelerometer_y,
@@ -183,7 +185,6 @@ def is_instruction_completed():
                         return False
                 else:
                         wait_until = None
-        degree_tolerance = 5
         
         if driving_motor_is_forward:
                 if driving_motor_value < driving_motor_target_angle:
@@ -204,8 +205,8 @@ def is_instruction_completed():
 
 print("start")
 print(wait_until)
-with open("data/sensor_log.txt", "w") as data_file:
-        with open("data/instruction_set_2.txt","r") as instruction_file:
+with open(DATA_FILEPATH, "w") as data_file:
+        with open(INSTRUCTION_FILEPATH,"r") as instruction_file:
                 instructions = instruction_file.readlines()
                 for instruction_string in instructions:
                         #EXECUTE INSTRUCTION THEN SENSOR
@@ -221,7 +222,7 @@ with open("data/sensor_log.txt", "w") as data_file:
                         steering_motor.stop()
                         #print("instruction is done, measured: ", driving_motor.get_degrees_counted(), "/", driving_motor_target_angle)
                         #print("instruction is done, measured: ", steering_motor.get_degrees_counted(), "/", steering_motor_target_angle)
-                        print(os.stat("data/sensor_log.txt"))
+                        print(os.stat(DATA_FILEPATH))
                         
 
 
