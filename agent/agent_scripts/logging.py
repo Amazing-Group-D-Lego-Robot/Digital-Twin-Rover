@@ -123,6 +123,11 @@ def log_instruction(data_file, instruction_string):
         data_file.write(data_bytes)
         data_file.flush()
 
+def log_interrupt(data_file, interrupt_string):
+        data_bytes = bytes("E:"+interrupt_string.strip()+"\n", "utf-8")
+        data_file.write(data_bytes)
+        data_file.flush()
+
 def log_sensor_data(data_file):
         global time_last_instruction
         front_r, front_g, front_b, front_intensity = front_color.get_rgb_intensity()
@@ -200,28 +205,52 @@ def is_instruction_completed():
                         return False
 
         return True
-        
+
+
+def color_interrupt(color_sensor):
+        return color_sensor.get_color() == 'black'    
+
+def distance_interrupt(distance_sensor):
+        return distance_sensor.get_distance_cm()<5
+
+def check_interrupt():
+        if color_interrupt(rear_color):
+                interrupt_string+="Colour"
+        elif distance_interrupt(distance_sensor):
+                interrupt_string+="Distance"
+        else:
+                interrupt_string = None
+        return interrupt_string
+                
 
 print("start")
 print(wait_until)
 with open("data/sensor_log.txt", "w") as data_file:
         with open("data/instruction_set_2.txt","r") as instruction_file:
                 instructions = instruction_file.readlines()
+                stop_agent = False
                 for instruction_string in instructions:
                         #EXECUTE INSTRUCTION THEN SENSOR
                         print("executing instruction:", instruction_string)
                         log_instruction(data_file, instruction_string)
                         execute_instruction(instruction_string)
 
-                        while not is_instruction_completed():
+                        while not is_instruction_completed() and stop_agent == False:
                                 #print("measured:", driving_motor.get_degrees_counted(), "/", driving_motor_target_angle)
                                 #print("measured:", steering_motor.get_degrees_counted(), "/", steering_motor_target_angle)
+                                interrupt_string = check_interrupt() 
                                 log_sensor_data(data_file)
+                                if interrupt_string != None:
+                                        log_interrupt(interrupt_string)
+                                        stop_agent = True
                         driving_motor.stop()
                         steering_motor.stop()
                         #print("instruction is done, measured: ", driving_motor.get_degrees_counted(), "/", driving_motor_target_angle)
                         #print("instruction is done, measured: ", steering_motor.get_degrees_counted(), "/", steering_motor_target_angle)
                         print(os.stat("data/sensor_log.txt"))
+                        if stop_agent:
+                                print("STOPPING!!!")
+                                break
                         
 
 
