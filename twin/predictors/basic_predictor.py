@@ -3,7 +3,7 @@ import pandas as pd
 from predictor import Predictor
 
 
-class basic_predictor(Predictor):
+class BasicPredictor(Predictor):
     def __init__(self):
         super().__init__()
 
