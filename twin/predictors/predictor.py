@@ -2,6 +2,7 @@ import pandas as pd
 
 
 class Predictor:
+
     def predict_instruction(self, instruction: str, current_state: pd.DataFrame) -> pd.DataFrame:
         """
         Abstract prediction function that takes a current state and instruction then returns a dataframe containing
