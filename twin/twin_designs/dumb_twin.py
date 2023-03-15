@@ -17,14 +17,13 @@ class DumbTwinModel(TwinModel):
         # sensors
 
 
-
 class DumbPredictor(Predictor):
     def __init__(self):
         super().__init__()
         self.instruction_switch = {
             "I:WAIT": self._return_current,
             "I:BEEP": self._return_current,
-            "I:MOTOR": self._return_current,
+            "I:MOTOR": self._get_motor_prediction,
             "I:LIGHT_DISTANCE": self._return_current,
             "I:LIGHT_MATRIX": self._return_current,
             "I:LIGHT_STATUS": self._return_current,
@@ -43,14 +42,15 @@ class DumbPredictor(Predictor):
         # get Dataframe result
         return decision_function()
 
-    def _get_motor(self):
-        pass
+    def _get_motor_prediction(self):
+        """
+        :return:
+        """
+        return self.state
 
     def _return_current(self) -> pd.DataFrame:
         """
         Dummy function that returns the current reading (for wait functions
-        :param inst_lst:
-        :param current_state:
-        :return:
+        :return: Pandas dataframe that is the current state
         """
         return self.state
