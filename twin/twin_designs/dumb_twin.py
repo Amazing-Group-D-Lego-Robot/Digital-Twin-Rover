@@ -7,6 +7,8 @@ from twin.twin_model import TwinModel
 from twin.sensors.sensor import Sensor
 from twin.sensors.color_sensor import ColorSensor
 
+from twin.twin_designs.errors.TwinExceptions import MotorPortError
+
 __all__ = ["DumbTwinModel", "DumbPredictor"]
 
 
@@ -78,14 +80,18 @@ class DumbPredictor(Predictor):
         Motor preduction handler
         :return :
         """
+        if self.inst_splt[1] == "C":
+            return self._drive_prediction()
+        elif self.inst_splt[1] == "A":
+            return self._steering_prediction()
 
+        raise MotorPortError(self.inst_splt[1])
+
+    def _drive_prediction(self):
         return self.state
 
-    def _direction_prediction(self):
-        pass
-
     def _steering_prediction(self):
-        pass
+        return self.state
 
     def _return_current(self) -> pd.DataFrame:
         """
