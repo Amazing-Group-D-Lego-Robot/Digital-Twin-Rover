@@ -1,4 +1,6 @@
-from dumb_twin import DumbPredictor
+import pandas as pd
+
+from .dumb_twin import DumbPredictor
 from controller.test_input_data_parser import parse_input_data
 
 input_data = input_data = """I:MOTOR C 25 720
@@ -72,3 +74,18 @@ None
 I:WAIT 1"""
 
 data = parse_input_data(input_data)
+predictor = DumbPredictor()
+
+
+def test_WAIT_reading():
+    expected = data[2].get("measurements") # checks the expected is returned
+    df = predictor.predict_instruction(data[2].get("instruction"), expected)
+
+    assert df.empty
+
+
+def test_BEEP_reading():
+    expected = data[0].get("measurements") # use random dataframe since it should just return this
+    df = predictor.predict_instruction("I:BEEP", expected)
+
+    assert df.equals(expected)
