@@ -2,6 +2,8 @@ import pandas as pd
 
 from .dumb_twin import DumbPredictor
 from controller.test_input_data_parser import parse_input_data
+from .errors.twin_exceptions import MotorPortError
+from pytest import raises
 
 input_data = input_data = """I:MOTOR C 25 720
 5
@@ -100,3 +102,8 @@ def test_BEEP_reading():
     df = dumb_predictor.predict_instruction("I:BEEP", expected)
 
     assert df.equals(expected)
+
+
+def test_MOTOR_PORT_error():
+    with raises(MotorPortError):
+        dumb_predictor.predict_instruction("I:MOTOR Z 100", pd.DataFrame())
