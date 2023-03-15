@@ -74,18 +74,29 @@ None
 I:WAIT 1"""
 
 data = parse_input_data(input_data)
-predictor = DumbPredictor()
+dumb_predictor = DumbPredictor()
 
 
-def test_WAIT_reading():
-    expected = data[2].get("measurements") # checks the expected is returned
-    df = predictor.predict_instruction(data[2].get("instruction"), expected)
+def test_WAIT_reading_start():
+    """checks wait on new initialisation of prediction function with 0 for rows is returned"""
+    predictor = DumbPredictor()
+    df = predictor.predict_instruction(data[2].get("instruction"), pd.DataFrame())
 
-    assert df.empty
+    assert df.shape[0] == 0
+
+
+def test_WAIT_after_previous():
+    """Test wait for when ran after a previous functions"""
+    expected = data[1].get("measurements")
+
+    dumb_predictor.predict_instruction(data[1].get("instruction"), expected)
+    actual = dumb_predictor.predict_instruction("I:WAIT", data[2].get("measurements"))
+
+    assert actual.equals(expected)
 
 
 def test_BEEP_reading():
-    expected = data[0].get("measurements") # use random dataframe since it should just return this
-    df = predictor.predict_instruction("I:BEEP", expected)
+    expected = data[0].get("measurements")  # use random dataframe since it should just return this
+    df = dumb_predictor.predict_instruction("I:BEEP", expected)
 
     assert df.equals(expected)
