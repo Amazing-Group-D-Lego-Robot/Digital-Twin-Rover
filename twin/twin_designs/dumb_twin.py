@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 
 from twin.predictors.predictor import Predictor
@@ -7,7 +6,7 @@ from twin.twin_model import TwinModel
 from twin.sensors.sensor import Sensor
 from twin.sensors.color_sensor import ColorSensor
 
-from twin.twin_designs.errors.TwinExceptions import MotorPortError
+from twin.twin_designs.errors.twin_exceptions import MotorPortError
 
 __all__ = ["DumbTwinModel", "DumbPredictor"]
 
@@ -20,16 +19,12 @@ class DumbTwinModel(TwinModel):
         self.predictor = DumbPredictor()
 
         # sensors
+        sensor_names = ["front_r", "front_g", "front_b", "front_intensity", "rear_r", "rear_g", "rear_b",
+               "rear_intensity", "distance_sensor", "accelerometer_x", "accelerometer_y", "accelerometer_z", "yaw",
+               "pitch", "roll", "gyro_x", "gyro_y", "gyro_z", "steering_motor_position", "driving_motor_position",
+               "force_sensor_newton"]
 
-        sensors = [
-            # Sensors for the spike
-            Sensor("Yaw"),
-            Sensor(""),
-
-            # Sensors that are from IO e.g. ports
-            ColorSensor("Front_RGB"),
-            ColorSensor("Bottom_RGB"),
-        ]
+        sensors = [Sensor(x) for x in sensor_names]
 
         self.set_sensors(sensors)
 
@@ -41,6 +36,7 @@ class DumbPredictor(Predictor):
             "I:WAIT": self._predict_wait,
             "I:BEEP": self._return_current,
             "I:MOTOR": self._get_motor_prediction,
+            # TODO: Implement functions for these
             "I:LIGHT_DISTANCE": self._return_current,
             "I:LIGHT_MATRIX": self._return_current,
             "I:LIGHT_STATUS": self._return_current,
@@ -51,6 +47,11 @@ class DumbPredictor(Predictor):
         self.inst_splt = None
 
     def predict_instruction(self, instruction: str, current_state: pd.DataFrame) -> pd.DataFrame:
+        """ Takes instruction and state(n) and predicts state(n + 1)
+        :param instruction: Instruction set instruction formatted as "I:INSTRUCTION OPCODE(S)"
+        :param current_state: Dataframe of sensors from teh current state
+        :return: the predicted instruction from the next state
+        """
         if current_state is None:
             raise TypeError("current_state cannot be None")
         elif type(current_state) != pd.DataFrame:
@@ -66,7 +67,7 @@ class DumbPredictor(Predictor):
         # get Dataframe result
         result = decision_function()
 
-        # currently redundant but might be useful for some functions e.g. retrieving previous yaw
+        # Makes sure wait conditions or blank predictions aren't added to the previous reading
         if current_state.shape[0] == 0:
             return result
 
@@ -87,10 +88,20 @@ class DumbPredictor(Predictor):
 
         raise MotorPortError(self.inst_splt[1])
 
-    def _drive_prediction(self):
+    def _drive_prediction(self) -> pd.DataFrame:
+        """
+        Predict change based on a motor drive command
+        :return: pandas dataframe of predicted change
+        """
+        #TODO: Implement prediction based on drive command
         return self.state
 
-    def _steering_prediction(self):
+    def _steering_prediction(self) -> pd.DataFrame:
+        """
+        Predict change based on steering position
+        :return:pandas dataframe of predicted change
+        """
+        #TODO: Implement prediction based on drive command
         return self.state
 
     def _return_current(self) -> pd.DataFrame:
