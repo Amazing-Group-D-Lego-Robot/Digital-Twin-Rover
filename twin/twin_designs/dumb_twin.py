@@ -6,8 +6,6 @@ from twin.twin_model import TwinModel
 
 from twin.sensors.sensor import Sensor
 from twin.sensors.color_sensor import ColorSensor
-from twin.sensors.distance_sensor import DistanceSensor
-from twin.sensors.pressure_sensor import PressureSensor
 
 __all__ = ["DumbTwinModel", "DumbPredictor"]
 
@@ -77,9 +75,17 @@ class DumbPredictor(Predictor):
 
     def _get_motor_prediction(self) -> pd.DataFrame:
         """
+        Motor preduction handler
         :return :
         """
+
         return self.state
+
+    def _direction_prediction(self):
+        pass
+
+    def _steering_prediction(self):
+        pass
 
     def _return_current(self) -> pd.DataFrame:
         """
