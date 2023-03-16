@@ -1,9 +1,14 @@
+import numpy as np
 import pandas as pd
 
 from twin.predictors.predictor import Predictor
 from twin.twin_model import TwinModel
 
 from twin.sensors.sensor import Sensor
+from twin.sensors.force_sensor import ForceSensor
+from twin.sensors.distance_sensor import DistanceSensor
+from twin.sensors.gyro_sensor import GyroSensor
+from twin.sensors.acceleration_sensor import AccelerationSensor
 from twin.sensors.color_sensor import ColorSensor
 
 from twin.twin_designs.errors.twin_exceptions import MotorPortError
@@ -26,7 +31,23 @@ class DumbTwinModel(TwinModel):
                         "driving_motor_position",
                         "force_sensor_newton"]
 
-        sensors = [Sensor(x) for x in sensor_names]
+        sensors = [
+            ColorSensor("FrontRGB", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
+            # TODO: Change bottom RGB direction to be correct as well as position
+            ColorSensor("BottomRGB", direction=np.array([0, 1, 0]), position=np.array([0, 0, 0])),
+
+            # TODO: Check if this is Rear Distance is correct direction and position
+            DistanceSensor("RearDist", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
+
+            # TODO: Check if this is Front Force is correct direction and position
+            ForceSensor("FrontForce", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
+
+            # Assuming middle of spike is where the acceleration sensor and gyro sensor is
+            AccelerationSensor("FrontForce", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
+            GyroSensor("FrontForce", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
+
+
+        ]
 
         self.set_sensors(sensors)
 
