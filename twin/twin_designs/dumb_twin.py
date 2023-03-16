@@ -20,9 +20,11 @@ class DumbTwinModel(TwinModel):
 
         # sensors
         sensor_names = ["front_r", "front_g", "front_b", "front_intensity", "rear_r", "rear_g", "rear_b",
-               "rear_intensity", "distance_sensor", "accelerometer_x", "accelerometer_y", "accelerometer_z", "yaw",
-               "pitch", "roll", "gyro_x", "gyro_y", "gyro_z", "steering_motor_position", "driving_motor_position",
-               "force_sensor_newton"]
+                        "rear_intensity", "distance_sensor", "accelerometer_x", "accelerometer_y", "accelerometer_z",
+                        "yaw",
+                        "pitch", "roll", "gyro_x", "gyro_y", "gyro_z", "steering_motor_position",
+                        "driving_motor_position",
+                        "force_sensor_newton"]
 
         sensors = [Sensor(x) for x in sensor_names]
 
@@ -67,18 +69,21 @@ class DumbPredictor(Predictor):
         # get Dataframe result
         result = decision_function()
 
+        # keep last instruction REDUNDANT BUT COULD BE USEFUL
+        self.previous_inst_splt = self.inst_splt
+
         # Makes sure wait conditions or blank predictions aren't added to the previous reading
         if current_state.shape[0] == 0:
             return result
 
+        # Only useful for WAIT Command
         self.previous_state = self.state
-        self.previous_inst_splt = self.inst_splt
 
         return result
 
     def _get_motor_prediction(self) -> pd.DataFrame:
         """
-        Motor preduction handler
+        Motor production handler
         :return :
         """
         if self.inst_splt[1] == "C":
@@ -90,19 +95,56 @@ class DumbPredictor(Predictor):
 
     def _drive_prediction(self) -> pd.DataFrame:
         """
-        Predict change based on a motor drive command
+        Predict statically change based on a motor drive command
         :return: pandas dataframe of predicted change
         """
-        #TODO: Implement prediction based on drive command
-        return self.state
+
+        # get final row of dataframe
+        row = self.state.iloc[-1:]
+
+        # get current wheel rotation
+        current_pos = int(row["driving_motor_position"][-1:])
+
+        # get angle of rotation in instruction
+        angle_inst = int(self.inst_splt[3])
+
+        # get new increments
+        position_changer = get_position_change_drive(current_pos, angle_inst)
+
+        temp_row = row.copy()
+        for inc_pos in position_changer:
+            temp_row.at[0, "driving_motor_position"] = inc_pos
+            row = pd.concat([row, temp_row], ignore_index=True)
+
+        return row
 
     def _steering_prediction(self) -> pd.DataFrame:
         """
         Predict change based on steering position
         :return:pandas dataframe of predicted change
         """
-        #TODO: Implement prediction based on drive command
-        return self.state
+        # TODO: Need to work out if Yaw and roll changes according to changing steering position (maybe safe to
+        #  assume it doesn't)
+
+        # change current steering motor position to change to new
+
+        # get last row
+        row = self.state.iloc[-1:]
+
+        angle_inst = int(self.inst_splt[3])
+        current_pos = int(row["steering_motor_position"][-1:])
+        new_pos = current_pos + angle_inst
+
+        position_changer = get_position_change_steering(current_pos, new_pos)
+
+        temp_row = row[-1:].copy()
+        for inc_pos in position_changer:
+            temp_row["steering_motor_position"] = inc_pos
+            row = pd.concat([row, temp_row], ignore_index=True)
+
+        # change steering position to new steering position
+
+        return row.iloc[1:]
 
     def _return_current(self) -> pd.DataFrame:
         """
@@ -118,9 +160,27 @@ class DumbPredictor(Predictor):
         """
 
         # in the event there is no other option we return the empty wait dataframe
-        # TODO: Do I want it to do this or raise an Error?
         if self.previous_state is None:
-            return self.state
+            raise TypeError("The previous state cannot be None it must be of type pd.DataFrame")
 
         return self.previous_state
 
+
+def get_position_change_drive(current_pos, angle_inst):
+    """Get list of change by 1 degree"""
+    # Get increments for position change
+    if angle_inst < 0:  # if angle is a rever angle
+        position_changer = [(current_pos + i) % 360 for i in range(-1, angle_inst - 1, -1)]
+    else:  # if angle is positive
+        position_changer = [(current_pos + i) % 360 for i in range(1, angle_inst + 1)]
+
+    return position_changer
+
+
+def get_position_change_steering(current, new):
+    if current > new:
+        position_changer = [i for i in range(current, new - 1, -1)]
+    else:
+        position_changer = [i for i in range(current, new + 1)]
+
+    return position_changer
