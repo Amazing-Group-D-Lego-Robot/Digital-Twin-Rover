@@ -15,3 +15,8 @@ class Sensor:
 
     def update(self, twin: TwinModel, environment: TwinEnvironment):
         pass
+
+    def _update_value(self, value: int):
+        """Update sensor reading"""
+
+        self.value = value

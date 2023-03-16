@@ -16,3 +16,6 @@ class ForceSensor(Sensor):
     def update(self, twin: TwinModel, environment: TwinEnvironment):
         # TODO: add update functionality when we have a format for environments
         pass
+
+    def _update_value(self, value: int):
+        self.value = value

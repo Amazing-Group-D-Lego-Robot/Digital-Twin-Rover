@@ -3,7 +3,7 @@ import numpy as np
 from twin.sensors.sensor import Sensor
 from twin.twin_environment import TwinEnvironment
 from twin.twin_model import TwinModel
-from twin.sensors.errors.SensorErrors import RGBValueSizeError
+from twin.sensors.errors.sensor_errors import RGBSensorValueError
 
 
 class ColorSensor(Sensor):
@@ -13,18 +13,18 @@ class ColorSensor(Sensor):
         # normalised direction vector (0,0,1) is the same direction as the agent is facing)
         self.direction = direction
         self.position = position  # offset from agent position
-        self.rgb_value = np.array([0, 0, 0, 0])  # RGB Values and intensity for colour sensor
+        self.value = np.array([0, 0, 0, 0])  # RGB Values and intensity for colour sensor
 
     def update(self, twin: TwinModel, environment: TwinEnvironment):
         # TODO: add update functionality when we have a format for environments
         pass
 
-    def _update_value(self, rgb_vals: np.array):
+    def _update_value(self, rgbi_vals: np.array):
         """
-        Update rgb values
-        :param rgb_vals: 1 x 4 array contain [[R,G,B,intensity]] as np array
+        Update rgb & intensity values
+        :param rgbi_vals: (4,) numpy array contains [R,G,B,intensity] as np
         """
-        if np.shape(1,4):
-            raise RGBValueSizeError(np.shape, type(rgb_vals))
+        if (shape := rgbi_vals.shape) != (4,):
+            raise RGBSensorValueError(self.name, shape)
 
-        self.rgb_value = np.ndarray.copy(rgb_vals)
+        self.value = rgbi_vals
