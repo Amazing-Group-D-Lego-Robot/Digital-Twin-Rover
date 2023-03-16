@@ -98,6 +98,7 @@ def test_WAIT_after_previous():
 
 
 def test_BEEP_reading():
+    """Checks no change on beep reading"""
     expected = data[0].get("measurements")  # use random dataframe since it should just return this
     df = dumb_predictor.predict_instruction("I:BEEP", expected)
 
@@ -105,11 +106,13 @@ def test_BEEP_reading():
 
 
 def test_MOTOR_PORT_error():
+    """Checks error on invalid motor port"""
     with raises(MotorPortError):
         dumb_predictor.predict_instruction("I:MOTOR Z 100", pd.DataFrame())
 
 
 def test_Driving_Motor_forward():
+    """Checks motor forward reading is correct"""
     curr_data = data[0]
 
     inst = curr_data.get("instruction")
@@ -122,7 +125,7 @@ def test_Driving_Motor_forward():
 
 
 def test_Driving_Motor_Backward():
-
+    """Check reverse produces expected result"""
     curr_data = data[0]
 
     inst = curr_data.get("instruction")
@@ -135,6 +138,7 @@ def test_Driving_Motor_Backward():
 
 
 def test_Steering_Motor_right():
+    """Check steering right works"""
     state = data[0].get("measurements")
     results = dumb_predictor.predict_instruction(f"I:MOTOR A 25 10", state)
 
@@ -143,6 +147,7 @@ def test_Steering_Motor_right():
 
 
 def test_Steering_Motor_left():
+    """Check steering left works"""
     state = data[0].get("measurements")
     results = dumb_predictor.predict_instruction("I:MOTOR A 25 -10", state)
 

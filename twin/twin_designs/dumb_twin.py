@@ -101,7 +101,7 @@ class DumbPredictor(Predictor):
     def _get_motor_prediction(self) -> pd.DataFrame:
         """
         Motor production handler
-        :return :
+        :return: steering prediction dataframe
         """
         if self.inst_splt[1] == "C":
             return self._drive_prediction()
@@ -183,8 +183,14 @@ class DumbPredictor(Predictor):
         return self.previous_state
 
 
-def get_position_change_drive(current_pos, angle_inst):
-    """Get list of change by 1 degree"""
+def get_position_change_drive(current_pos, angle_inst)->list:
+    """
+    Get change in driving motors
+    :param current_pos: the current position of the motor
+    :param angle_inst: the amount of degrees to turn it
+    :return: list of increments value of each list 0 <= val < 360
+    """
+
     # Get increments for position change
     if angle_inst < 0:  # if angle is a rever angle
         position_changer = [(current_pos + i) % 360 for i in range(-1, angle_inst - 1, -1)]
@@ -194,7 +200,15 @@ def get_position_change_drive(current_pos, angle_inst):
     return position_changer
 
 
-def get_position_change_steering(current, new):
+def get_position_change_steering(current, new) -> list:
+    """
+    Get's change in steering position as list of increments
+    :param current: old degrees
+    :param new: new degrees
+    :return: list of increments
+    """
+
+    # given a steering position that goes backwards
     if current > new:
         position_changer = [i for i in range(current, new - 1, -1)]
     else:

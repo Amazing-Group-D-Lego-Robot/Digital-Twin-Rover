@@ -13,6 +13,7 @@ from pytest import raises
 
 
 def test_general_sensor():
+    """Tests that general sensor can assign a value"""
     creation = Sensor("yaw")
     creation._update_value(2)
     assert creation.value == 2
@@ -52,30 +53,35 @@ def test_color_sensor_error():
 
 
 def test_distance_sensor():
+    """Tests if the distance sensor value assigning and creation works"""
     creation = DistanceSensor("test", direction=np.array([0, 0, 1]), position=np.array([0, 0, 1]))
     creation._update_value(1)
     assert creation.value == 1
 
 
 def test_distance_sensor_none():
+    """tests that distance sensor can be assigned nne"""
     creation = DistanceSensor("test", direction=np.array([0, 0, 1]), position=np.array([0, 0, 1]))
     creation._update_value(None)
     assert creation.value is None
 
 
 def test_distance_sensor_error():
+    """test that distance sensor raises error"""
     creation = DistanceSensor("test", direction=np.array([0, 0, 1]), position=np.array([0, 0, 1]))
     with raises(DistanceValueError):
         creation._update_value("error")
 
 
 def test_force_sensor():
+    """tests that force sensor can be updated and created"""
     creation = ForceSensor("test", direction=np.array([0, 0, 1]), position=np.array([0, 0, 1]))
     creation._update_value(1)
     assert creation.value == 1
 
 
 def test_gyro_sensor():
+    """test gyro sensor can be created and updated"""
     creation = GyroSensor("test", direction=np.array([0, 0, 1]), position=np.array([0, 0, 1]))
 
     expected = np.array([0, 0, 0])
@@ -84,6 +90,7 @@ def test_gyro_sensor():
 
 
 def test_gyro_sensor_error():
+    """tests gyro sensor can't be assigned incorrect value"""
     expected = GyroValueError
     creation = GyroSensor("test", direction=np.array([0, 0, 1]), position=np.array([0, 0, 1]))
 
