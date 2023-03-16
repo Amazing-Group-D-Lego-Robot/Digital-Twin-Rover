@@ -5,7 +5,7 @@ from twin.twin_environment import TwinEnvironment
 from twin.twin_model import TwinModel
 
 
-class PressureSensor(Sensor):
+class ForceSensor(Sensor):
     def __init__(self, name: str, direction: np.array, position: np.array):
         super().__init__(name)
 

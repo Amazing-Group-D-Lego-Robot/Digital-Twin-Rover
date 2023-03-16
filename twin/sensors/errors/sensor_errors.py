@@ -18,5 +18,11 @@ class DistanceValueError(Exception):
     """If it is not None or an integer this error is raised"""
 
     def __init__(self, name, value):
-        self.message = f"{name}: value for sensor must be NoneType or int, {value} is neither"
+        self.message = f"{name}: value for sensor must be NoneType or int, {value} is type {type(value)}"
         super().__init__(self.message)
+
+class GeneralSensorValueError(Exception):
+    """If a general sensor isn't fed updated value of type int"""
+
+    def __init__(self,name,value):
+        self.message = f"{name}: sensor must receive int. Value: {value} is of type {type(value)}"
