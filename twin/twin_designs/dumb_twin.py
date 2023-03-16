@@ -23,14 +23,6 @@ class DumbTwinModel(TwinModel):
         # predictor
         self.predictor = DumbPredictor()
 
-        # sensors
-        sensor_names = ["front_r", "front_g", "front_b", "front_intensity", "rear_r", "rear_g", "rear_b",
-                        "rear_intensity", "distance_sensor", "accelerometer_x", "accelerometer_y", "accelerometer_z",
-                        "yaw",
-                        "pitch", "roll", "gyro_x", "gyro_y", "gyro_z", "steering_motor_position",
-                        "driving_motor_position",
-                        "force_sensor_newton"]
-
         sensors = [
             ColorSensor("FrontRGB", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
             # TODO: Change bottom RGB direction to be correct as well as position
@@ -45,6 +37,10 @@ class DumbTwinModel(TwinModel):
             # Assuming middle of spike is where the acceleration sensor and gyro sensor is
             AccelerationSensor("FrontForce", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
             GyroSensor("FrontForce", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
+
+            Sensor("pitch"),
+            Sensor("roll"),
+            Sensor("yaw")
 
 
         ]
