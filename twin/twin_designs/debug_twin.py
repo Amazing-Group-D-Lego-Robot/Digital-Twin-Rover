@@ -5,7 +5,7 @@ from twin.predictors.predictor import Predictor
 from twin.sensors.color_sensor import ColorSensor
 from twin.sensors.sensor import Sensor
 from twin.sensors.distance_sensor import DistanceSensor
-from twin.sensors.pressure_sensor import PressureSensor
+from twin.sensors.force_sensor import ForceSensor
 from twin.twin_model import TwinModel
 
 
@@ -31,7 +31,7 @@ class DebugTwinModel(TwinModel):
             Sensor("ZAcc"),
             DistanceSensor("Dist", np.array([0, 0, 1.]), np.array([0, 0, 0.])),
             ColorSensor("Col", np.array([0, 0, 1.]), np.array([0, 0, 0.])),
-            PressureSensor("Pres", np.array([0, 0, 1.]), np.array([0, 0, 0.]))
+            ForceSensor("Pres", np.array([0, 0, 1.]), np.array([0, 0, 0.]))
         ])
 
         # PROPERTIES
