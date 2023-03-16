@@ -37,10 +37,10 @@ def test_acceleration_error():
 
 def test_colour_sensor():
     """Tests if value updating is correct"""
-    expected = np.arrya([0, 0, 1, 20])
+    expected = np.array([0, 0, 1, 20])
     creation = ColorSensor("test", direction=np.array([0, 0, 1]), position=np.array([0, 0, 1]))
     creation._update_value(expected)
-    assert creation.value == expected
+    assert np.array_equal(creation.value, expected)
 
 
 def test_color_sensor_error():
@@ -48,7 +48,7 @@ def test_color_sensor_error():
     expectedError = RGBSensorValueError
     creation = ColorSensor("test", direction=np.array([0, 0, 1]), position=np.array([0, 0, 1]))
     with raises(expectedError):
-        creation._update_value([1, 2])
+        creation._update_value(np.array([0,1]))
 
 
 def test_distance_sensor():
