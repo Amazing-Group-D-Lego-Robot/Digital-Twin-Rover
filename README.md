@@ -10,7 +10,13 @@ Automatically generated and updated [here](https://amazing-group-d-lego-robot.gi
 The visualisation is created using Ursina engine which is open source under the MIT License.
 
 ### Controls
-- \<SHIFT\> + q Quits the visualisation
+- <1> Speed 1
+- <2> Speed 10
+- <3> Speed 100
+- <u> Up by 0.3
+- <j> Down by 0.3
+- <i> Up by 1
+- <k> Down by 1
 - \<ESC\> Quits the visualisation
 
 ## Dependencies

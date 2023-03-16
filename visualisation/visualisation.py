@@ -18,7 +18,7 @@ def new_position(world_state: dict):
     :return:
     """
     # Update the menu
-    menu.update_menu(world_state)
+    menu.update_menu(world_state, viewport.position)
 
     for i, [key, val] in enumerate(menu.__dict__.items()):
         menu_fields[i].text = f"{key}: {val:.2f}"
