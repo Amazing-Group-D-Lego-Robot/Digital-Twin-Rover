@@ -1,6 +1,6 @@
 from objects.block import Block
 from objects.slope import Slope
-from ursina import color
+import json
 
 
 class SimulatedEnvironment:
@@ -9,18 +9,37 @@ class SimulatedEnvironment:
         self.blocks = []
         self.slopes = []
 
-        self.generate_test_blocks()
-        self.generate_test_slopes()
+        self.environment_filename = 'assets/environment.json'
+        self.environment = self.load_environment()
 
-    def generate_test_blocks(self):
-        possible_colours = [color.white, color.smoke, color.black, color.red, color.yellow,
-                            color.lime, color.blue, color.pink, color.brown, color.gold]
-        for i in range(10):
-            self.blocks.append(Block([4*i, 0, 1], [.25*i, .25*i, .25*i], possible_colours[i]))
+        self.parse_environment_file()
 
-    def generate_test_slopes(self):
-        possible_colours = [color.white, color.smoke, color.black, color.red, color.yellow,
-                            color.lime, color.blue, color.pink, color.brown, color.gold]
-        for i in range(10):
-            self.slopes.append(Slope([4 * i, 0, 4], [.25 * i, .25 * i, .25 * i], possible_colours[i]))
+    def load_environment(self):
+        with open(self.environment_filename) as f:
+            return json.load(f)
 
+    def parse_environment_file(self):
+        origin_offset = [0, 0]
+
+        # get origin (this can be merged with the main loop if there is an ordering where origin is always first
+        for structure in self.environment:
+            if structure['shape'] == 'origin':
+                origin_offset = structure["centre"]
+                break
+
+        for structure in self.environment:
+            if structure['shape'] == 'origin': continue
+
+            print(structure['points'], structure['height'], structure['colour'])
+
+            # apply offset
+            centre = structure["centre"].copy()
+            centre[0] -= origin_offset[0]
+            centre[1] -= origin_offset[1]
+
+            points = structure["points"].copy()
+            for point in points:
+                point[0] -= origin_offset[0]
+                point[1] -= origin_offset[1]
+
+            self.blocks.append(Block(points, structure['height'], centre, structure['colour']))
