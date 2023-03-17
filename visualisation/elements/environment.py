@@ -19,9 +19,27 @@ class SimulatedEnvironment:
             return json.load(f)
 
     def parse_environment_file(self):
+        origin_offset = [0, 0]
+
+        # get origin (this can be merged with the main loop if there is an ordering where origin is always first
+        for structure in self.environment:
+            if structure['shape'] == 'origin':
+                origin_offset = structure["centre"]
+                break
+
         for structure in self.environment:
             if structure['shape'] == 'origin': continue
 
             print(structure['points'], structure['height'], structure['colour'])
 
-            self.blocks.append(Block(structure['points'], structure['height'], structure['centre'], structure['colour']))
+            # apply offset
+            centre = structure["centre"].copy()
+            centre[0] -= origin_offset[0]
+            centre[1] -= origin_offset[1]
+
+            points = structure["points"].copy()
+            for point in points:
+                point[0] -= origin_offset[0]
+                point[1] -= origin_offset[1]
+
+            self.blocks.append(Block(points, structure['height'], centre, structure['colour']))

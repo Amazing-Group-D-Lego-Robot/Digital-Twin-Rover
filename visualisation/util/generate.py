@@ -4,7 +4,7 @@ import cv2
 import json
 
 HEADLESS = True
-
+SF = 0.01
 
 class EnvironmentConverter:
     """
@@ -65,7 +65,7 @@ class EnvironmentConverter:
 
                 # Dimensions
                 _, _, w, h = cv2.boundingRect(contour)
-                dimensions = [w/10, h/10]
+                dimensions = [w*SF, h*SF]
 
                 if not HEADLESS:
                     cv2.putText(self.opencv_image, "quadrilateral", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 0))
@@ -82,7 +82,7 @@ class EnvironmentConverter:
                 'shape': shape,
                 'points': points,
                 'dimensions': dimensions,
-                'centre': [centre_x/10, centre_y/10],
+                'centre': [centre_x*SF, -centre_y*SF],
                 'colour': colour
             }
 
@@ -109,11 +109,18 @@ class EnvironmentConverter:
 
             structure['sides'] = side_lengths
             structure['rotation'] = rot_degrees
-            structure['height'] = 10
+            structure['height'] = 50 * SF
 
             self.environment_data[i] = structure
 
     def sort_corners(self):
+        # invert the y because ursina has the _wrong_ coordinate system
+        for i, structure in enumerate(self.environment_data):
+            if structure['shape'] == 'origin': continue
+
+            for j, point in enumerate(structure['points']):
+                self.environment_data[i]['points'][j][1] *= -1
+
         for i, structure in enumerate(self.environment_data):
             if structure['shape'] == 'origin': continue
 
@@ -134,10 +141,10 @@ class EnvironmentConverter:
             lr_x = max([point[0] for point in structure['points'] if point[1] == lr_y])
 
             self.environment_data[i]['points'] = [
-                [bl_x/10, bl_y/10],
-                [ul_x/10, ul_y/10],
-                [ur_x/10, ur_y/10],
-                [lr_x/10, lr_y/10]
+                [bl_x*SF, bl_y*SF],
+                [ul_x*SF, ul_y*SF],
+                [ur_x*SF, ur_y*SF],
+                [lr_x*SF, lr_y*SF]
             ]
 
     def dump(self):
