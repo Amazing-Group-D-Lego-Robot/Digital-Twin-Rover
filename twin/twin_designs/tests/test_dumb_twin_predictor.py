@@ -84,15 +84,15 @@ def test_WAIT_reading_start():
     predictor = DumbPredictor()
 
     with raises(TypeError):
-        df = predictor.predict_instruction(data[2].get("instruction"), data[2].get("measurements"))
+        df = predictor.predict_instruction(None, data[2].get("instruction"), data[2].get("measurements"))
 
 
 def test_WAIT_after_previous():
     """Test wait for when ran after a previous functions"""
     expected = data[1].get("measurements")
 
-    dumb_predictor.predict_instruction(data[1].get("instruction"), expected)
-    actual = dumb_predictor.predict_instruction("I:WAIT", data[2].get("measurements"))
+    dumb_predictor.predict_instruction(None, data[1].get("instruction"), expected)
+    actual = dumb_predictor.predict_instruction(None, "I:WAIT", data[2].get("measurements"))
 
     assert actual.equals(expected)
 
@@ -100,7 +100,7 @@ def test_WAIT_after_previous():
 def test_BEEP_reading():
     """Checks no change on beep reading"""
     expected = data[0].get("measurements")  # use random dataframe since it should just return this
-    df = dumb_predictor.predict_instruction("I:BEEP", expected)
+    df = dumb_predictor.predict_instruction(None, "I:BEEP", expected)
 
     assert df.equals(expected)
 
@@ -108,7 +108,7 @@ def test_BEEP_reading():
 def test_MOTOR_PORT_error():
     """Checks error on invalid motor port"""
     with raises(MotorPortError):
-        dumb_predictor.predict_instruction("I:MOTOR Z 100", pd.DataFrame())
+        dumb_predictor.predict_instruction(None, "I:MOTOR Z 100", pd.DataFrame())
 
 
 def test_Driving_Motor_forward():
@@ -118,7 +118,7 @@ def test_Driving_Motor_forward():
     inst = curr_data.get("instruction")
     state = curr_data.get("measurements")
 
-    results = dumb_predictor.predict_instruction(inst, state)
+    results = dumb_predictor.predict_instruction(None, inst, state)
 
     val = int(results["driving_motor_position"][-1:])
     assert val == 207 and results.shape == (721, 22)
@@ -131,7 +131,7 @@ def test_Driving_Motor_Backward():
     inst = curr_data.get("instruction")
     state = curr_data.get("measurements")
 
-    results = dumb_predictor.predict_instruction("I:MOTOR C 25 -720", state)
+    results = dumb_predictor.predict_instruction(None, "I:MOTOR C 25 -720", state)
 
     val = int(results["driving_motor_position"][-1:])
     assert val == 207 and results.shape == (721, 22)
@@ -140,7 +140,7 @@ def test_Driving_Motor_Backward():
 def test_Steering_Motor_right():
     """Check steering right works"""
     state = data[0].get("measurements")
-    results = dumb_predictor.predict_instruction(f"I:MOTOR A 25 10", state)
+    results = dumb_predictor.predict_instruction(None, f"I:MOTOR A 25 10", state)
 
     val = int(results["steering_motor_position"][-1:])
     assert val == 95 and results.shape == (11, 22)
@@ -149,7 +149,7 @@ def test_Steering_Motor_right():
 def test_Steering_Motor_left():
     """Check steering left works"""
     state = data[0].get("measurements")
-    results = dumb_predictor.predict_instruction("I:MOTOR A 25 -10", state)
+    results = dumb_predictor.predict_instruction(None, "I:MOTOR A 25 -10", state)
 
     val = int(results["steering_motor_position"][-1:])
     assert val == 75 and results.shape == (11, 22)
