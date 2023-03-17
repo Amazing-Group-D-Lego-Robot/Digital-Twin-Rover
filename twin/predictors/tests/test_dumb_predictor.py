@@ -2,7 +2,7 @@ import pandas as pd
 
 from twin.twin_designs.dumb_twin import DumbPredictor
 from controller.test_input_data_parser import parse_input_data
-from twin.twin_designs.errors.twin_exceptions import MotorPortError
+from twin.predictors.errors.predictor_exceptions import MotorPortError
 from pytest import raises
 
 input_data = """I:MOTOR C 25 720
