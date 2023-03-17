@@ -144,5 +144,12 @@ class EnvironmentConverter:
         # Move origin to start of list
         self.environment_data.insert(0, self.environment_data.pop(self.origin_index))
 
+        # two files because two threads ig?
+
+        # for the visualisation
         with open("./visualisation/assets/environment.json", 'w', encoding='utf-8') as environment_file:
+            json.dump(self.environment_data, environment_file, ensure_ascii=False, indent=4, sort_keys=True)
+
+        # for the twin
+        with open("./res/environment.json", 'w', encoding='utf-8') as environment_file:
             json.dump(self.environment_data, environment_file, ensure_ascii=False, indent=4, sort_keys=True)
