@@ -1,6 +1,7 @@
 import pandas as pd
 
 from predictor import Predictor
+from twin.twin_environment import TwinEnvironment
 
 
 class BasicPredictor(Predictor):
@@ -37,7 +38,7 @@ class BasicPredictor(Predictor):
         # beeps don't actually do anything important
         return current_state.copy(deep=True)
 
-    def predict_instruction(self, instruction: str, current_state: pd.DataFrame) -> pd.DataFrame:
+    def predict_instruction(self, environment: TwinEnvironment, instruction: str, current_state: pd.DataFrame) -> pd.DataFrame:
         split_instruction = instruction.split(" ")
         print("opcode:", split_instruction[0])
         print("operands:", split_instruction[1:])

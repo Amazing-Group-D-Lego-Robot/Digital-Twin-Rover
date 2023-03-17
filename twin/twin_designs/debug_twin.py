@@ -6,6 +6,7 @@ from twin.sensors.color_sensor import ColorSensor
 from twin.sensors.sensor import Sensor
 from twin.sensors.distance_sensor import DistanceSensor
 from twin.sensors.force_sensor import ForceSensor
+from twin.twin_environment import TwinEnvironment
 from twin.twin_model import TwinModel
 
 
@@ -50,7 +51,7 @@ class DebugPredictor(Predictor):
         # memory and storage goes here
         pass
 
-    def predict_instruction(self, instruction: str, current_state: pd.DataFrame) -> pd.DataFrame:
+    def predict_instruction(self, environment: TwinEnvironment, instruction: str, current_state: pd.DataFrame) -> pd.DataFrame:
         ret = current_state.copy()
         ret["z_pos"] += 0.01
         ret["A"] += 0.1

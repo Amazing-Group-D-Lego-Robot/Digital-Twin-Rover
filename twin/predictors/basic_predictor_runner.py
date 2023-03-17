@@ -1,12 +1,14 @@
-from  basic_predictor import basic_predictor
+from basic_predictor import BasicPredictor
 from controller.input_data_parser import parse_input_data
+from twin.twin_environment import TwinEnvironment
 
-test = basic_predictor()
+test = BasicPredictor()
 str = open('test.txt', 'r').read()
 parsed_data = parse_input_data(str)
 current_dict = parsed_data[0]
 instruction = current_dict.get("instruction")
 state = current_dict.get("measurements")
+env = TwinEnvironment()
 
-val = test.predict_instruction(instruction=instruction,current_state=state)
+val = test.predict_instruction(env, instruction=instruction, current_state=state)
 print(val)

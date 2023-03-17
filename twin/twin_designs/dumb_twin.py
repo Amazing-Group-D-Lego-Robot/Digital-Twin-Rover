@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from twin.predictors.predictor import Predictor
+from twin.twin_environment import TwinEnvironment
 from twin.twin_model import TwinModel
 
 from twin.sensors.sensor import Sensor
@@ -65,8 +66,9 @@ class DumbPredictor(Predictor):
         self.state = None
         self.inst_splt = None
 
-    def predict_instruction(self, instruction: str, current_state: pd.DataFrame) -> pd.DataFrame:
+    def predict_instruction(self, environment: TwinEnvironment, instruction: str, current_state: pd.DataFrame) -> pd.DataFrame:
         """ Takes instruction and state(n) and predicts state(n + 1)
+        :param environment:
         :param instruction: Instruction set instruction formatted as "I:INSTRUCTION OPCODE(S)"
         :param current_state: Dataframe of sensors from teh current state
         :return: the predicted instruction from the next state
@@ -202,7 +204,7 @@ def get_position_change_drive(current_pos, angle_inst)->list:
 
 def get_position_change_steering(current, new) -> list:
     """
-    Get's change in steering position as list of increments
+    Gets change in steering position as list of increments
     :param current: old degrees
     :param new: new degrees
     :return: list of increments

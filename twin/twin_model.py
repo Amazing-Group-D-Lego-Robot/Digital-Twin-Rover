@@ -141,7 +141,7 @@ class TwinModel:
             # then append the predictions to the end of "prediction"
             for instruction in instructions:
                 prediction = \
-                    pd.concat([prediction, self.predictor.predict_instruction(instruction, prediction.iloc[-1:])])
+                    pd.concat([prediction, self.predictor.predict_instruction(environment, instruction, prediction.iloc[-1:])])
         # END OF PREDICTION AREA
 
         return prediction
