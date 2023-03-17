@@ -1,4 +1,5 @@
 # CALLS METHODS FROM TWIN AND ROVER TO SEND INSTRUCTIONS / POLL SENSORS AND STATE
+from time import strftime, gmtime
 
 from agent.agent import AgentControl
 from twin.twin_system import TwinSystem
@@ -7,10 +8,12 @@ import pandas as pd
 
 
 class Controller:
-    def __init__(self):
-        self.agent = AgentControl()
+    def __init__(self, headless=False):
+        # TODO: real-time communication (further work)
+        # self.agent = AgentControl()
         self.twin_system = TwinSystem()
-        self.server = TwinServer()
+        if not headless:
+            self.server = TwinServer()
 
         self.current_data = None
 
@@ -18,7 +21,6 @@ class Controller:
         self.predicted_env = None
 
         self.current_row = 0
-
 
     def update(self) -> bool:
         if self.current_data is None:
@@ -37,7 +39,7 @@ class Controller:
 
         return True
 
-    def predict(self) -> bool:
+    def visualise_dataframe(self) -> bool:
         if self.predicted_state is None:
             print("Load a prediction before running predict!")
             return False
@@ -56,6 +58,8 @@ class Controller:
     def load_prediction(self, instructions):
         self.predicted_env, self.predicted_state = self.twin_system.predict_next(instructions)
         self.current_row = 0
+
+        self.predicted_state.to_csv("./res/prediction_dumps/prediction_dump (" + strftime("%d-%m-%Y_%H-%M-%S", gmtime()) + ").csv")
 
     def load_data(self, path):
         """
