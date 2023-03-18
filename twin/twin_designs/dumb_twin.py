@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from twin.twin_model import TwinModel
 
@@ -10,6 +11,8 @@ from twin.sensors.acceleration_sensor import AccelerationSensor
 from twin.sensors.color_sensor import ColorSensor
 from twin.predictors.dumb_predictor import DumbPredictor
 
+from math import pi
+
 __all__ = ["DumbTwinModel"]
 
 
@@ -20,6 +23,7 @@ class DumbTwinModel(TwinModel):
         # predictor
         self.predictor = DumbPredictor()
 
+        # Sensors Modelled as if on rover
         sensors = [
             ColorSensor("FrontRGB", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
             # TODO: Change bottom RGB direction to be correct as well as position
@@ -35,12 +39,28 @@ class DumbTwinModel(TwinModel):
             AccelerationSensor("Acc", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
             GyroSensor("Gyro", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
 
+            # General sensors -> sensors that only take on integer value as input
             Sensor("pitch"),
             Sensor("roll"),
             Sensor("yaw")
-
 
         ]
 
         self.set_sensors(sensors)
 
+        # Useful properties
+        self.wheel_diameter = 0.088  # diameter in m
+        self.movement_per_degree = (self.wheel_diameter * pi) / 360  # movement in m per degree
+
+    def _update(self, instruction_step: dict, environment) -> pd.DataFrame:
+        """
+        Takes in instruction_step dictionary and returns the predicted next state
+        :param instruction_step:
+        :param environment:
+        :return: predicted next state
+        """
+        instruction = instruction_step.get("instruction")
+        current_state = instruction_step.get("measurrements")
+        updated_state = self.predictor.predict_instruction(environment, instruction, current_state)
+
+        return updated_state

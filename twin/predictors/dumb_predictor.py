@@ -87,7 +87,7 @@ class DumbPredictor(Predictor):
         angle_inst = int(self.inst_splt[3])
 
         # get new increments
-        position_changer = get_position_change_drive(current_pos, angle_inst)
+        position_changer = _get_position_change_drive(current_pos, angle_inst)
 
         temp_row = row.copy()
         for inc_pos in position_changer:
@@ -113,7 +113,7 @@ class DumbPredictor(Predictor):
         current_pos = int(row["steering_motor_position"][-1:])
         new_pos = current_pos + angle_inst
 
-        position_changer = get_position_change_steering(current_pos, new_pos)
+        position_changer = _get_position_change_steering(current_pos, new_pos)
 
         temp_row = row[-1:].copy()
         for inc_pos in position_changer:
@@ -144,7 +144,7 @@ class DumbPredictor(Predictor):
         return self.previous_state
 
 
-def get_position_change_drive(current_pos, angle_inst) -> list:
+def _get_position_change_drive(current_pos, angle_inst) -> list:
     """
     Get change in driving motors
     :param current_pos: the current position of the motor
@@ -161,7 +161,7 @@ def get_position_change_drive(current_pos, angle_inst) -> list:
     return position_changer
 
 
-def get_position_change_steering(current, new) -> list:
+def _get_position_change_steering(current, new) -> list:
     """
     Gets change in steering position as list of increments
     :param current: old degrees
