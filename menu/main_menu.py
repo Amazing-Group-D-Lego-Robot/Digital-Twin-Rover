@@ -5,6 +5,7 @@ from PIL import ImageTk, Image
 import threading
 from platform import system
 from controller.controller import Controller
+from visualisation.util.generate import EnvironmentConverter
 from time import sleep
 import os
 import sys
@@ -31,7 +32,8 @@ class MainMenu:
         self.title = tk.Label(text="Main Menu", font='Helvetica 18 bold')
 
         # Create the buttons
-        self.buttons = [tk.Button(text="Play Offline Scenario", command=self.play_offline, font="Helvetica"),
+        self.buttons = [tk.Button(text="Generate Environment", command=self.generate_environment, font="Helvetica"),
+                        tk.Button(text="Play Offline Scenario", command=self.play_offline, font="Helvetica"),
                         tk.Button(text="Play Live Scenario", command=self.play_live, font="Helvetica"),
                         tk.Button(text="Generate Prediction (only dump)", command=self.generate_prediction, font="Helvetica"),
                         tk.Button(text="Play Prediction", command=self.play_prediction, font="Helvetica"),
@@ -86,6 +88,24 @@ class MainMenu:
         # end threads
         thread_controller.join()
         thread_vis.join()
+        self.filename = None
+
+    def generate_environment(self):
+        """Functionality for generating new environment from selected file"""
+
+        while self.filename is None:
+            self.filename = fd.askopenfilename()
+
+        environment_manager = EnvironmentConverter(self.filename)
+
+        # create threads
+        thread_converter = threading.Thread(target=environment_manager.convert())
+
+        # start threads
+        thread_converter.start()
+
+        # end threads
+        thread_converter.join()
         self.filename = None
 
     def play_prediction(self):

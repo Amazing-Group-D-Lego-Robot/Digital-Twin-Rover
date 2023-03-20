@@ -24,7 +24,11 @@ class VisualMenu:
         self.motor_2 = 0
         self.motor_3 = 0
 
-    def update_menu(self, world_state):
+        self.viewport_x = 0
+        self.viewport_y = 0
+        self.viewport_z = 0
+
+    def update_menu(self, world_state, viewport):
         """
         Input a world_state dict and store locally for the visualisations needs
         :param world_state:
@@ -50,6 +54,10 @@ class VisualMenu:
         self.motor_1 = world_state["B"]
         self.motor_2 = world_state["C"]
         self.motor_3 = world_state["D"]
+
+        self.viewport_x = viewport[0]
+        self.viewport_y = viewport[1]
+        self.viewport_z = viewport[2]
 
     def get_pos(self):
         """

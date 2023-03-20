@@ -1,21 +1,20 @@
 from ursina import Mesh, Entity
 from ursina.shaders import basic_lighting_shader
+from ursina import color
 
 
 class Block:
-    def __init__(self, pos: list, scale: list, colour: str):
-        p_x, p_y, p_z = pos
-        s_x, s_y, s_z = scale
+    def __init__(self, coords: list, height: int, centre: list, colour: list):
 
         mesh = Mesh(vertices=[
-            [0*s_x, 0*s_y, 0*s_z],  # 0
-            [1*s_x, 0*s_y, 0*s_z],  # 1
-            [1*s_x, 0*s_y, 1*s_z],  # 2
-            [0*s_x, 0*s_y, 1*s_z],  # 3
-            [0*s_x, 1*s_y, 0*s_z],  # 4
-            [1*s_x, 1*s_y, 0*s_z],  # 5
-            [1*s_x, 1*s_y, 1*s_z],  # 6
-            [0*s_x, 1*s_y, 1*s_z],  # 7
+            [coords[1][0], 0, coords[1][1]],        # 0
+            [coords[2][0], 0, coords[2][1]],        # 1
+            [coords[2][0], height, coords[2][1]],   # 2
+            [coords[1][0], height, coords[1][1]],   # 3
+            [coords[0][0], 0, coords[0][1]],        # 4
+            [coords[3][0], 0, coords[3][1]],        # 5
+            [coords[3][0], height, coords[3][1]],   # 6
+            [coords[0][0], height, coords[0][1]],   # 7
             ],
 
             triangles=[
@@ -40,5 +39,5 @@ class Block:
         entity = Entity(
             model=mesh,
             shader=basic_lighting_shader,
-            origin=pos,
-            color=colour)
+            origin=[-centre[0], 0, -centre[1]],
+            color=color.rgb(colour[0], colour[1], colour[2]))

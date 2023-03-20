@@ -20,3 +20,24 @@ class Viewport(FirstPersonController):
 
         if key == 'shift':
             self.position -= (0, 0.03, 0)
+
+        if key == '1':
+            self.speed = 1
+
+        if key == '2':
+            self.speed = 10
+
+        if key == '3':
+            self.speed = 100
+
+        if key == 'u':
+            self.position += (0, 0.3, 0)
+
+        if key == 'j':
+            self.position -= (0, 0.3, 0)
+
+        if key == 'i':
+            self.position += (0, 1, 0)
+
+        if key == 'k':
+            self.position -= (0, 1, 0)
