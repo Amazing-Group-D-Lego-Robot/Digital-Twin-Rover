@@ -74,6 +74,7 @@ class TwinModel:
     def get_current_state_as_df(self) -> pd.DataFrame:
         """
         Gets current sensor values and returns them as a pandas dataframe
+        These are created due to the rovers
         """
         # TODO: update this to reflect the new sensor values
         ret = {key: [self.sensors[key].value] for key in self.sensors.keys()}
