@@ -1,3 +1,5 @@
+import logging
+
 from copy import deepcopy
 from time import time_ns
 import numpy as np
@@ -5,8 +7,10 @@ import pandas as pd
 from scipy.spatial.transform import Rotation as R
 
 from twin.predictors.predictor import Predictor
+from twin.predictors.dumb_predictor import DumbPredictor
 from twin.twin_environment import TwinEnvironment
 
+logger = logging.getLogger(__name__)
 
 class TwinModel:
     def __init__(self):
@@ -43,7 +47,7 @@ class TwinModel:
         self.current_instruction = None
         self.memory_buffer = []
 
-        self.predictor = None
+        self.predictor = DumbPredictor()
 
     def set_sensors(self, sensors: list):
         self.sensors = {sensor.name: sensor for sensor in sensors}
@@ -67,7 +71,11 @@ class TwinModel:
         })
         return ret
 
-    def get_current_state_as_df(self):
+    def get_current_state_as_df(self) -> pd.DataFrame:
+        """
+        Gets current sensor values and returns them as a pandas dataframe
+        """
+        # TODO: update this to reflect the new sensor values
         ret = {key: [self.sensors[key].value] for key in self.sensors.keys()}
         ret.update({
             "x_pos": [self.pos.copy()[0]],
@@ -141,7 +149,7 @@ class TwinModel:
             # then append the predictions to the end of "prediction"
             for instruction in instructions:
                 prediction = \
-                    pd.concat([prediction, self.predictor.predict_instruction(instruction, prediction.iloc[-1:])])
+                    pd.concat([prediction, self.predictor.predict_instruction(environment, instruction, prediction.iloc[-1:])])
         # END OF PREDICTION AREA
 
         return prediction
