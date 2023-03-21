@@ -2,8 +2,8 @@
 from menu.main_menu import MainMenu
 import logging
 
-def main():
 
+def main():
     # Logging handler
     log_level = logging.DEBUG
 
@@ -22,7 +22,6 @@ def main():
     logger.addHandler(handler)
 
     logging.basicConfig(level=log_level, format='%(asctime)s :: %(levelname)s :: %(message)s')
-
 
     menu = MainMenu()
     menu.launch()

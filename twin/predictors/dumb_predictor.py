@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 
 from twin.twin_environment import TwinEnvironment
@@ -6,10 +8,16 @@ from twin.predictors.errors.predictor_exceptions import MotorPortError
 
 __all__ = ["DumbPredictor"]
 
+logger = logging.getLogger(__name__)
+
+
+# TODO: Sort out the prediction in relation to the controller
 
 class DumbPredictor(Predictor):
     def __init__(self, prev_inst=None, prev_state=None):
         super().__init__()
+
+        # Possible list of instruction
         self.instruction_switch = {
             "I:WAIT": self._predict_wait,
             "I:BEEP": self._return_current,
@@ -32,6 +40,7 @@ class DumbPredictor(Predictor):
         :param current_state: Dataframe of sensors from teh current state
         :return: the predicted instruction from the next state
         """
+        logging.info(f"Starting predict instruction for {instruction}")
         if current_state is None:
             raise TypeError("current_state cannot be None")
         elif type(current_state) != pd.DataFrame:
@@ -65,8 +74,10 @@ class DumbPredictor(Predictor):
         :return: steering prediction dataframe
         """
         if self.inst_splt[1] == "C":
+            logging.info("Predicting for Drive motor on port C")
             return self._drive_prediction()
         elif self.inst_splt[1] == "A":
+            logging.info("Predicting for steering motor on port A")
             return self._steering_prediction()
 
         raise MotorPortError(self.inst_splt[1])
@@ -129,6 +140,7 @@ class DumbPredictor(Predictor):
         Handles instructions where no change in state takes place e.g. BEEP
         :return : Pandas dataframe that is the current state
         """
+        logger.info("returning current state")
         return self.state
 
     def _predict_wait(self) -> pd.DataFrame:
@@ -140,6 +152,8 @@ class DumbPredictor(Predictor):
         # in the event there is no other option we return the empty wait dataframe
         if self.previous_state is None:
             raise TypeError("The previous state cannot be None it must be of type pd.DataFrame")
+
+        logger.info("returning previous state for wait")
 
         return self.previous_state
 
@@ -153,7 +167,7 @@ def _get_position_change_drive(current_pos, angle_inst) -> list:
     """
 
     # Get increments for position change
-    if angle_inst < 0:  # if angle is a rever angle
+    if angle_inst < 0:  # if angle is a negative angle
         position_changer = [(current_pos + i) % 360 for i in range(-1, angle_inst - 1, -1)]
     else:  # if angle is positive
         position_changer = [(current_pos + i) % 360 for i in range(1, angle_inst + 1)]
