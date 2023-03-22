@@ -42,8 +42,9 @@ class DumbTwinModel(TwinModel):
             # General sensors -> sensors that only take on integer value as input
             Sensor("pitch"),
             Sensor("roll"),
-            Sensor("yaw")
-
+            Sensor("yaw"),
+            Sensor("steering_pos"),
+            Sensor("wheel_rotation_pos"),
         ]
 
         self.set_sensors(sensors)

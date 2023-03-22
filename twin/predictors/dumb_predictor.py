@@ -1,10 +1,12 @@
 import logging
 
+import numpy as np
 import pandas as pd
 
 from twin.twin_environment import TwinEnvironment
 from twin.predictors.predictor import Predictor
 from twin.predictors.errors.predictor_exceptions import MotorPortError
+from math import pi
 
 __all__ = ["DumbPredictor"]
 
@@ -27,10 +29,28 @@ class DumbPredictor(Predictor):
             "I:LIGHT_MATRIX": self._return_current,
             "I:LIGHT_STATUS": self._return_current,
         }
+
         self.previous_state = prev_state
         self.previous_inst_splt = prev_inst
+
+        # current state information
         self.state = None
         self.inst_splt = None
+
+        # properties that aren't given in self.state
+        self.properties = {
+            "turning radius": None,
+            "wheel diameter": 0.088,
+            "movement per degree": (0.088 * pi) / 360,
+            "velocity": 1,  # m/s
+            "sim_dt": 0.1,  # dt for the simulation in seconds (not sure if needed)
+            "lf": 0,  # f ront distance from center of mass of the car
+            "lb": 0,  # Back distance from center of mass of the car
+            "lw": 0,  # half of the width of the vehicle
+            "prev_phi": 0,
+            "elapsed_time": 0,
+            "wheel_rotation_pos":0,
+        }
 
     def predict_instruction(self, environment: TwinEnvironment, instruction: str,
                             current_state: pd.DataFrame) -> pd.DataFrame:
@@ -87,25 +107,89 @@ class DumbPredictor(Predictor):
         Predict statically change based on a motor drive command
         :return: pandas dataframe of predicted change
         """
+        logger.info("Drive Prediction on instruction")
+        logger.info(self.state.columns)
 
+        ### OLD WAY
         # get final row of dataframe
-        row = self.state.iloc[-1:]
+        # row = self.state.iloc[-1:]
+        #
+        # # get current wheel rotation
+        # current_pos = int(row["driving_motor_position"][-1:])
+        #
+        # # get angle of rotation in instruction
+        # angle_inst = int(self.inst_splt[3])
+        #
+        # # get new increments
+        # position_changer = _get_position_change_drive(current_pos, angle_inst)
+        #
+        # temp_row = row.copy()
+        # for inc_pos in position_changer:
+        #     temp_row.at[0, "driving_motor_position"] = inc_pos
+        #     row = pd.concat([row, temp_row], ignore_index=True)
 
-        # get current wheel rotation
-        current_pos = int(row["driving_motor_position"][-1:])
+        curr_state = self.state.iloc[-1:]
 
-        # get angle of rotation in instruction
-        angle_inst = int(self.inst_splt[3])
+        # get current z,x from the df
+        curr_z = int(curr_state["z_pos"])
+        curr_x = int(curr_state["x_pos"])
+        steering = int(curr_state["steering_pos"])
 
-        # get new increments
-        position_changer = _get_position_change_drive(current_pos, angle_inst)
+        # total distance to travel m
+        distance_to_travel = self.inst_splt[3] * self.properties.get("movement per degree")
 
-        temp_row = row.copy()
-        for inc_pos in position_changer:
-            temp_row.at[0, "driving_motor_position"] = inc_pos
-            row = pd.concat([row, temp_row], ignore_index=True)
+        # velocity has to be assumed to be some component of vel_z and vel_x given steering angle theta
+        # TODO: calculate velocity assuming z is forwards
+        zx_vel =
+
+
+        # get the required properties
+
+        new_state = curr_state.copy(deep = True)
 
         return row
+
+    def update_zx_drive(self):
+        """Assigns new emd xyz coordinates based on current direction"""
+
+        # FOR NOW ASSUME ONLY FORWARDS OR BACKWARDS
+        # TODO: Implement forwards and backwards movement based off rover direction
+        # TODO: Implement moving in none stright line whilst wheels are at an angle
+
+        ### Plan
+        # We want to workout the change in x and y based on the motor command issued
+
+        # Given the angle, current position,
+
+        # this will be an arc depending on turning angle
+        distance_to_move = self.properties.get("movement per degree") * int(self.inst_splt[3])
+        rotation = self.properties.get("rotation")
+        # distance to move an be considered an arc
+        # so we have arc length, and inital angle workout ending vector
+
+        # Get properties from dictionary
+
+
+        vel = self.properties.get("velocity")
+        steering = np.deg2rad(self.properties.get("yaw"))
+
+        lb = self.properties.get("lb")
+        lf = self.properties.get("lf")
+
+        prev_phi = self.properties.get("prev_phi")
+
+        # get time
+        time = abs(distance_to_move / vel)
+
+        # calculate heading of the vehicle
+        beta = np.arctan(lb*np.tan(steering)/(lb + lf))
+        prev_phi = self.properties.get("prev_phi")
+        sim_dt = self.properties.get("sim_dt")
+        phi = prev_phi + vel * sim_dt * np.cos(beta) * np.tan(steering)/ (lb * lf)
+
+        # calculate new z and z (x and y respectively)
+        z =
+
 
     def _steering_prediction(self) -> pd.DataFrame:
         """
@@ -116,6 +200,7 @@ class DumbPredictor(Predictor):
         #  assume it doesn't)
 
         # change current steering motor position to change to new
+        logger.info(f"Steering prediction rotation angle {self.inst_splt[3]} {self.inst_splt[1]}")
 
         # get last row
         row = self.state.iloc[-1:]

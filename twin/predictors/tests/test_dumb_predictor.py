@@ -1,79 +1,86 @@
 import pandas as pd
 
-from twin.twin_designs.dumb_twin import DumbPredictor
+from twin.predictors.dumb_predictor import DumbPredictor
 from controller.test_input_data_parser import parse_input_data
 from twin.predictors.errors.predictor_exceptions import MotorPortError
 from pytest import raises
+from os import path
 
-input_data = """I:MOTOR C 25 720
-5
-2
-1
-2
-4
-0
-2
-0
-1
-None
--27
-67
--997
-34
-3
-178
-0
-0
-0
-85
-207
-0
-I:MOTOR A 25 -10
-6
-1
-1
-0
-3
-0
-0
-0
-1
-None
--28
-70
--997
-34
-3
-178
-0
-0
-0
-85
-220
-0
-140
-1
-1
-0
-4
-0
-2
-0
-1
-None
--27
-69
--996
-34
-3
-178
-0
-0
-0
-85
-220
-0
-I:WAIT 1"""
+# input_data = """I:MOTOR C 25 720
+# 5
+# 2
+# 1
+# 2
+# 4
+# 0
+# 2
+# 0
+# 1
+# None
+# -27
+# 67
+# -997
+# 34
+# 3
+# 178
+# 0
+# 0
+# 0
+# 85
+# 207
+# 0
+# I:MOTOR A 25 -10
+# 6
+# 1
+# 1
+# 0
+# 3
+# 0
+# 0
+# 0
+# 1
+# None
+# -28
+# 70
+# -997
+# 34
+# 3
+# 178
+# 0
+# 0
+# 0
+# 85
+# 220
+# 0
+# 140
+# 1
+# 1
+# 0
+# 4
+# 0
+# 2
+# 0
+# 1
+# None
+# -27
+# 69
+# -996
+# 34
+# 3
+# 178
+# 0
+# 0
+# 0
+# 85
+# 220
+# 0
+# I:WAIT 1"""
+
+dirname = path.dirname(__file__)[:-21]
+filename = path.join(dirname, 'res/rover_readings/reading_three_instructions.txt')
+
+with open(filename, 'r') as file:
+    input_data = file.read()
 
 data = parse_input_data(input_data)
 dumb_predictor = DumbPredictor()
