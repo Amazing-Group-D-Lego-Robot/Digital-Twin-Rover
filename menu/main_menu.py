@@ -148,7 +148,16 @@ class MainMenu:
             sleep(0.1)
 
     def start_prediction(self):
-        self.load_prediction()
+        self.controller = Controller()
+        with open(self.filename, "r") as f:
+            instructions = f.readlines()
+
+        for i in range(len(instructions)):
+            instructions[i] = instructions[i].rstrip()
+
+        instructions = list(filter(None, instructions))
+
+        self.controller.load_prediction(instructions)
 
         sleep(2)
 
