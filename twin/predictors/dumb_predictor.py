@@ -179,7 +179,7 @@ class DumbPredictor(Predictor):
         # logger.info(f"Distance covered: {sum()}")
         logger.info(f"{new_state[['z_pos','x_pos']]}")
         logger.info(f"{new_state.shape}")
-        return new_state
+        return new_state.copy()[1:]
 
     def update_zx_drive(self):
         """Assigns new emd xyz coordinates based on current direction"""
