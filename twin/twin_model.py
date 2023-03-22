@@ -12,6 +12,7 @@ from twin.twin_environment import TwinEnvironment
 
 logger = logging.getLogger(__name__)
 
+
 class TwinModel:
     def __init__(self):
         # print("created new twin")
@@ -47,6 +48,7 @@ class TwinModel:
         self.current_instruction = None
         self.memory_buffer = []
 
+        logging.info("Twin Model intialised")
         self.predictor = DumbPredictor()
 
     def set_sensors(self, sensors: list):
@@ -76,6 +78,7 @@ class TwinModel:
         Gets current sensor values and returns them as a pandas dataframe
         """
         # TODO: update this to reflect the new sensor values
+        logger.info("Copying visualisation state to the dataframe")
         ret = {key: [self.sensors[key].value] for key in self.sensors.keys()}
         ret.update({
             "x_pos": [self.pos.copy()[0]],
@@ -94,6 +97,7 @@ class TwinModel:
         return pd.DataFrame.from_dict(ret)
 
     def change_instruction(self, instruction: str):
+        logger.info(f"changing instruction {instruction}")
         # TODO: add normalisation for instruction length / data
         if self.current_instruction is not None:
             if self.current_instruction in self.memory:
@@ -146,10 +150,12 @@ class TwinModel:
         # PREDICTION AREA
         if self.predictor is not None:
             # for each instruction, predict 100 states with the last state in "prediction" acting as the current_state
+            # TODO: above comment is probably redundant and should be changed
             # then append the predictions to the end of "prediction"
             for instruction in instructions:
                 prediction = \
-                    pd.concat([prediction, self.predictor.predict_instruction(environment, instruction, prediction.iloc[-1:])])
+                    pd.concat([prediction,
+                               self.predictor.predict_instruction(environment, instruction, prediction.iloc[-1:])])
         # END OF PREDICTION AREA
 
         return prediction
