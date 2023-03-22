@@ -40,16 +40,16 @@ class DumbPredictor(Predictor):
         # properties that aren't given in self.state
         self.properties = {
             "turning radius": None,
-            "wheel diameter": 0.088,
-            "movement per degree": (0.088 * pi) / 360,
-            "velocity": 1,  # m/s
-            "sim_dt": 0.1,  # dt for the simulation in seconds (not sure if needed)
+            "wheel diameter": np.array(0.088),
+            "movement per degree": np.array((0.088 * pi) / 360),
+            "velocity": np.array(0.1),  # m/s
+            "sim_dt": np.array(0.1),  # dt for the simulation in seconds (not sure if needed)
             "lf": 0,  # f ront distance from center of mass of the car
             "lb": 0,  # Back distance from center of mass of the car
             "lw": 0,  # half of the width of the vehicle
             "prev_phi": 0,
             "elapsed_time": 0,
-            "wheel_rotation_pos":0,
+            "wheel_rotation_pos": np.array(0),
         }
 
     def predict_instruction(self, environment: TwinEnvironment, instruction: str,
@@ -131,23 +131,35 @@ class DumbPredictor(Predictor):
         curr_state = self.state.iloc[-1:]
 
         # get current z,x from the df
-        curr_z = int(curr_state["z_pos"])
-        curr_x = int(curr_state["x_pos"])
-        steering = int(curr_state["steering_pos"])
+        curr_z = np.array(curr_state["z_pos"])
+        curr_x = np.array(curr_state["x_pos"])
+        curr_y_rot = np.array(curr_state["y_rot"])
+        steering = np.deg2rad(np.array(curr_state["steering_pos"]))
 
         # total distance to travel m
-        distance_to_travel = self.inst_splt[3] * self.properties.get("movement per degree")
+        distance_to_travel = np.array(int(self.inst_splt[3])) * self.properties.get("movement per degree")
+        logger.info(f"distance to travel in m is {distance_to_travel}")
 
-        # velocity has to be assumed to be some component of vel_z and vel_x given steering angle theta
-        # TODO: calculate velocity assuming z is forwards
-        zx_vel =
+
+        # velocity has to be assumed to be constant at 0.1 m/s
+        velocity = self.properties.get("velocity")
+        logger.info(f"Velocity is {velocity}")
+        # TODO: calculate velocity as a component of z and x vel + y rotation and steering angle\
+        # assume y is from the axis of z i.e. that y axis rotation is theta_z
+
+        # since velocity is 0.1 m/s we want to calculate the change in z and y in 0.1s, so we get a df value every
+        # 0.01 second
+        dz = None
+        dx = None
+
+        dz = np.arccos(velocity/0.1)
 
 
         # get the required properties
 
         new_state = curr_state.copy(deep = True)
 
-        return row
+        return curr_state
 
     def update_zx_drive(self):
         """Assigns new emd xyz coordinates based on current direction"""
@@ -188,7 +200,7 @@ class DumbPredictor(Predictor):
         phi = prev_phi + vel * sim_dt * np.cos(beta) * np.tan(steering)/ (lb * lf)
 
         # calculate new z and z (x and y respectively)
-        z =
+
 
 
     def _steering_prediction(self) -> pd.DataFrame:
@@ -275,3 +287,7 @@ def _get_position_change_steering(current, new) -> list:
         position_changer = [i for i in range(current, new + 1)]
 
     return position_changer
+
+def _get_radians(angle:np.array)->np.array:
+    """Given angle in degrees returns radians"""
+    return
