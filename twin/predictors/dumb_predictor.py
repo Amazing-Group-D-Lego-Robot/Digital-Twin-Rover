@@ -134,32 +134,52 @@ class DumbPredictor(Predictor):
         curr_z = np.array(curr_state["z_pos"])
         curr_x = np.array(curr_state["x_pos"])
         curr_y_rot = np.array(curr_state["y_rot"])
-        steering = np.deg2rad(np.array(curr_state["steering_pos"]))
+        steering = np.array(curr_state["steering_pos"])
+        logger.info(f"Steering in degrees {curr_state['steering_pos']} \t steering in radians {steering}")
 
         # total distance to travel m
         distance_to_travel = np.array(int(self.inst_splt[3])) * self.properties.get("movement per degree")
         logger.info(f"distance to travel in m is {distance_to_travel}")
 
-
         # velocity has to be assumed to be constant at 0.1 m/s
         velocity = self.properties.get("velocity")
         logger.info(f"Velocity is {velocity}")
-        # TODO: calculate velocity as a component of z and x vel + y rotation and steering angle\
-        # assume y is from the axis of z i.e. that y axis rotation is theta_z
 
-        # since velocity is 0.1 m/s we want to calculate the change in z and y in 0.1s, so we get a df value every
-        # 0.01 second
-        dz = None
-        dx = None
+        new_state = curr_state.copy()[-1:]
+        seconds = 0.1 # for each while loop increment by this many seconds
+        increment_distance = velocity * seconds  # distance per while loop (not including the final distance
 
-        dz = np.arccos(velocity/0.1)
+        logger.info(f"Increment distance {increment_distance}")
+        distance_left = distance_to_travel
+        while distance_left > 0:
 
+            if distance_left - increment_distance <= 0:
+                increment_distance = distance_left
+
+            # get last row
+            row = new_state.copy()[-1:]
+
+            # get change in z and x for this 0.1s increment
+            dz = np.arccos(steering) * increment_distance
+            dx = np.arcsin(steering) * increment_distance
+
+            # in 0.1s the change in the position is
+            curr_z += dz
+            curr_x += dx
+            row["z_pos"][0] = curr_z
+            row["x_pos"][0] = curr_x
+
+            distance_left -= increment_distance
+
+            new_state = pd.concat([new_state, row])
+
+        logger.info(f"z: {curr_z}\t x: {curr_x}")
 
         # get the required properties
-
-        new_state = curr_state.copy(deep = True)
-
-        return curr_state
+        # logger.info(f"Distance covered: {sum()}")
+        logger.info(f"{new_state[['z_pos','x_pos']]}")
+        logger.info(f"{new_state.shape}")
+        return new_state
 
     def update_zx_drive(self):
         """Assigns new emd xyz coordinates based on current direction"""
@@ -181,7 +201,6 @@ class DumbPredictor(Predictor):
 
         # Get properties from dictionary
 
-
         vel = self.properties.get("velocity")
         steering = np.deg2rad(self.properties.get("yaw"))
 
@@ -194,14 +213,12 @@ class DumbPredictor(Predictor):
         time = abs(distance_to_move / vel)
 
         # calculate heading of the vehicle
-        beta = np.arctan(lb*np.tan(steering)/(lb + lf))
+        beta = np.arctan(lb * np.tan(steering) / (lb + lf))
         prev_phi = self.properties.get("prev_phi")
         sim_dt = self.properties.get("sim_dt")
-        phi = prev_phi + vel * sim_dt * np.cos(beta) * np.tan(steering)/ (lb * lf)
+        phi = prev_phi + vel * sim_dt * np.cos(beta) * np.tan(steering) / (lb * lf)
 
         # calculate new z and z (x and y respectively)
-
-
 
     def _steering_prediction(self) -> pd.DataFrame:
         """
@@ -288,6 +305,4 @@ def _get_position_change_steering(current, new) -> list:
 
     return position_changer
 
-def _get_radians(angle:np.array)->np.array:
-    """Given angle in degrees returns radians"""
-    return
+
