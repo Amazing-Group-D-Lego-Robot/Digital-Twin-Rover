@@ -17,8 +17,8 @@ wait_until = None
 time_last_instruction = time.ticks_ms()
 
 STEERING_PERMITTED_OFFSET = 10
-DATA_FILEPATH = "data/sensor_log.txt"
-INSTRUCTION_FILEPATH = "data/instruction_set_2.txt"
+DATA_FILEPATH = "sensor_log.txt"
+INSTRUCTION_FILEPATH = "instruction_set.txt"
 
 front_color = ColorSensor('B')
 bottom_color = ColorSensor('D')
@@ -66,7 +66,8 @@ def handle_motor(index, speed, change_in_angle):
         global driving_motor_is_forward
         global steering_center_angle
 
-        change_in_angle = int(change_in_angle)
+        # Negated here so Backwards/Left = negative as opcode
+        change_in_angle = -int(change_in_angle)
         speed = int(speed)
         if index == "A":
                 speed = 1
@@ -96,6 +97,7 @@ def handle_motor(index, speed, change_in_angle):
         motor.start(speed)
 
 def handle_wait(time):
+        global wait_until
         wait_until = timer.now() + int(time)
 
 def handle_light_distance(index, intensity):
@@ -209,16 +211,20 @@ def is_instruction_completed():
 
 
 def color_interrupt(color_sensor):
-        return color_sensor.get_color() == 'black'    
+        return color_sensor.get_color() == 'black'
 
 def distance_interrupt(distance_sensor):
-        return distance_sensor.get_distance_cm()<5
+        distance = distance_sensor.get_distance_cm()
+        # distance is sometimes None when past 200cm
+        if (distance == None):
+                return False
+        return distance<5
 
 def check_interrupt():
         if color_interrupt(bottom_color):
-                interrupt_string+="Colour"
+                interrupt_string ="Colour"
         elif distance_interrupt(distance_sensor):
-                interrupt_string+="Distance"
+                interrupt_string ="Distance"
         else:
                 interrupt_string = None
         return interrupt_string
