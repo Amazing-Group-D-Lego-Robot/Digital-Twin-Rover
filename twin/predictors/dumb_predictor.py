@@ -41,7 +41,7 @@ class DumbPredictor(Predictor):
         self.properties = {
             "turning radius": None,
             "wheel diameter": np.array(0.088),
-            "movement per degree": np.array((0.088 * pi) / 360),
+            "movement per degree": np.array((0.088 * pi) / 360, dtype=np.longdouble),
             "velocity": np.array(0.1),  # m/s
             "sim_dt": np.array(0.1),  # dt for the simulation in seconds (not sure if needed)
             "lf": 0,  # f ront distance from center of mass of the car
@@ -112,16 +112,19 @@ class DumbPredictor(Predictor):
         logger.info(self.state.columns)
         
         curr_state = self.state.iloc[-1:]
-        steering = np.deg2rad(np.array(curr_state["steering_pos"]))
+        steering = np.array(curr_state["steering_pos"])
         logger.info(f"Steering in degrees {curr_state['steering_pos']} \t steering in radians {steering}")
         
         # get the turning radius
         
         if (steering == 0).all():
+            logger.info("Straight line prediction (0 degrees of steering)")
             new_prediction = self.drive_predict_no_steering(curr_state)
         else:
+            logger.info(f"Predicting for steering angle of {steering}")
             new_prediction = self.drive_predict_steering
-            
+         
+        logger.info("End of steering prediction")   
         return new_prediction
 
     def drive_predict_no_steering(self,curr_state):
@@ -131,14 +134,12 @@ class DumbPredictor(Predictor):
        
         vel = self.properties.get("velocity")
         
-        
-        
         # orientation in terms of cartesian cordinates
         if (y_rot > 1.5*np.pi).all():
             # +ve z, -ve x
             new_rot = y_rot - (1.5 * np.pi)
             z_dist = distance_to_travel * np.cos(new_rot)
-            x_dist = distance_to_travel * np.sin(new_rot)
+            x_dist = -distance_to_travel * np.sin(new_rot)
         elif (y_rot > np.pi).all():
             # negative z axis, negative z
             new_rot = y_rot - np.pi
@@ -152,28 +153,31 @@ class DumbPredictor(Predictor):
         else:
             z_dist = distance_to_travel * np.cos(y_rot)
             x_dist = distance_to_travel * np.sin(y_rot)
+         
+        increment_z_distance = (z_dist/100)[0] 
+        increment_x_distance = (x_dist/100)[0]
         
-        increment_z_distance = z_dist/100 
-        increment_x_distance = x_dist/100
-        increment_hyp_distance = np.hypot(increment_x_distance,increment_z_distance)
-        
-        logger.info(f"z_dist :{increment_z_distance}\n x_dist: {increment_x_distance}\n hyp_dist {increment_hyp_distance}")
+        logger.info(f"increment z :{increment_z_distance}\n increment x: {increment_x_distance}")
        
-        curr_z = curr_state["z_pos"]
-        curr_x = curr_state["x_pos"]
+        curr_z = curr_state["z_pos"][0]
+        curr_x = curr_state["x_pos"][0]
         
-        z_list = curr_z.copy()
-        x_list = curr_x.copy()
+        new_z = curr_z.copy()
+        new_x = curr_x.copy()
+        new_y = y_rot.copy()
         
-        for i in range(100):
+        for i in range(1,101):
             curr_z += increment_z_distance
-            curr_x += increment_x_distance
+            new_z = np.vstack((new_z,curr_z))
             
-            z_list.append(curr_z)
-            x_list.append(curr_x)
+            curr_x += increment_x_distance
+            new_x = np.vstack((new_x, curr_x))
+            
+            new_y = np.vstack((new_y, y_rot))
             
         
-        logger.info(f"z {z_list} {x_list}")
+        logger.info(f"new_z {new_z}")
+        logger.info(f"new_x {new_x}")
        
         return None
     
