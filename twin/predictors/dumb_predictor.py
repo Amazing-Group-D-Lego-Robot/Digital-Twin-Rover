@@ -50,6 +50,7 @@ class DumbPredictor(Predictor):
             "prev_phi": 0,
             "elapsed_time": 0,
             "wheel_rotation_pos": np.array(0),
+            "wheel_base": np.array(0.156)
         }
 
     def predict_instruction(self, environment: TwinEnvironment, instruction: str,
@@ -109,116 +110,75 @@ class DumbPredictor(Predictor):
         """
         logger.info("Drive Prediction on instruction")
         logger.info(self.state.columns)
-
-        ### OLD WAY
-        # get final row of dataframe
-        # row = self.state.iloc[-1:]
-        #
-        # # get current wheel rotation
-        # current_pos = int(row["driving_motor_position"][-1:])
-        #
-        # # get angle of rotation in instruction
-        # angle_inst = int(self.inst_splt[3])
-        #
-        # # get new increments
-        # position_changer = _get_position_change_drive(current_pos, angle_inst)
-        #
-        # temp_row = row.copy()
-        # for inc_pos in position_changer:
-        #     temp_row.at[0, "driving_motor_position"] = inc_pos
-        #     row = pd.concat([row, temp_row], ignore_index=True)
-
+        
         curr_state = self.state.iloc[-1:]
-
-        # get current z,x from the df
-        curr_z = np.array(curr_state["z_pos"])
-        curr_x = np.array(curr_state["x_pos"])
-        curr_y_rot = np.array(curr_state["y_rot"])
-        steering = np.array(curr_state["steering_pos"])
+        steering = np.deg2rad(np.array(curr_state["steering_pos"]))
         logger.info(f"Steering in degrees {curr_state['steering_pos']} \t steering in radians {steering}")
+        
+        # get the turning radius
+        
+        if (steering == 0).all():
+            new_prediction = self.drive_predict_no_steering(curr_state)
+        else:
+            new_prediction = self.drive_predict_steering
+            
+        return new_prediction
 
-        # total distance to travel m
-        distance_to_travel = np.array(int(self.inst_splt[3])) * self.properties.get("movement per degree")
-        logger.info(f"distance to travel in m is {distance_to_travel}")
-
-        # velocity has to be assumed to be constant at 0.1 m/s
-        velocity = self.properties.get("velocity")
-        logger.info(f"Velocity is {velocity}")
-
-        new_state = curr_state.copy()[-1:]
-        seconds = 0.1 # for each while loop increment by this many seconds
-        increment_distance = velocity * seconds  # distance per while loop (not including the final distance
-
-        logger.info(f"Increment distance {increment_distance}")
-        distance_left = distance_to_travel
-        while distance_left > 0:
-
-            if distance_left - increment_distance <= 0:
-                increment_distance = distance_left
-
-            # get last row
-            row = new_state.copy()[-1:]
-
-            # get change in z and x for this 0.1s increment
-            dz = np.arccos(steering) * increment_distance
-            dx = np.arcsin(steering) * increment_distance
-
-            # in 0.1s the change in the position is
-            curr_z += dz
-            curr_x += dx
-            row["z_pos"][0] = curr_z
-            row["x_pos"][0] = curr_x
-
-            distance_left -= increment_distance
-
-            new_state = pd.concat([new_state, row])
-
-        logger.info(f"z: {curr_z}\t x: {curr_x}")
-
-        # get the required properties
-        # logger.info(f"Distance covered: {sum()}")
-        logger.info(f"{new_state[['z_pos','x_pos']]}")
-        logger.info(f"{new_state.shape}")
-        return new_state.copy()[1:]
-
-    def update_zx_drive(self):
-        """Assigns new emd xyz coordinates based on current direction"""
-
-        # FOR NOW ASSUME ONLY FORWARDS OR BACKWARDS
-        # TODO: Implement forwards and backwards movement based off rover direction
-        # TODO: Implement moving in none stright line whilst wheels are at an angle
-
-        ### Plan
-        # We want to workout the change in x and y based on the motor command issued
-
-        # Given the angle, current position,
-
-        # this will be an arc depending on turning angle
-        distance_to_move = self.properties.get("movement per degree") * int(self.inst_splt[3])
-        rotation = self.properties.get("rotation")
-        # distance to move an be considered an arc
-        # so we have arc length, and inital angle workout ending vector
-
-        # Get properties from dictionary
-
+    def drive_predict_no_steering(self,curr_state):
+        distance_to_travel = self.properties.get("movement per degree") * np.array(float(self.inst_splt[3]),dtype=np.longdouble)
+        logger.info(f"Distance to travel: {distance_to_travel} (no steering)")
+        y_rot = np.deg2rad(curr_state["y_rot"])
+       
         vel = self.properties.get("velocity")
-        steering = np.deg2rad(self.properties.get("yaw"))
-
-        lb = self.properties.get("lb")
-        lf = self.properties.get("lf")
-
-        prev_phi = self.properties.get("prev_phi")
-
-        # get time
-        time = abs(distance_to_move / vel)
-
-        # calculate heading of the vehicle
-        beta = np.arctan(lb * np.tan(steering) / (lb + lf))
-        prev_phi = self.properties.get("prev_phi")
-        sim_dt = self.properties.get("sim_dt")
-        phi = prev_phi + vel * sim_dt * np.cos(beta) * np.tan(steering) / (lb * lf)
-
-        # calculate new z and z (x and y respectively)
+        
+        
+        
+        # orientation in terms of cartesian cordinates
+        if (y_rot > 1.5*np.pi).all():
+            # +ve z, -ve x
+            new_rot = y_rot - (1.5 * np.pi)
+            z_dist = distance_to_travel * np.cos(new_rot)
+            x_dist = distance_to_travel * np.sin(new_rot)
+        elif (y_rot > np.pi).all():
+            # negative z axis, negative z
+            new_rot = y_rot - np.pi
+            z_dist = -(distance_to_travel) * np.cos(new_rot)
+            x_dist = -(distance_to_travel) * np.sin(new_rot)
+        elif (y_rot > 0.5 * np.pi).all():
+            # negative z axis, positive x
+            new_rot = y_rot - (0.5 * np.pi)
+            z_dist = -(distance_to_travel * np.cos(new_rot))
+            x_dist = distance_to_travel * np.sin(new_rot)
+        else:
+            z_dist = distance_to_travel * np.cos(y_rot)
+            x_dist = distance_to_travel * np.sin(y_rot)
+        
+        increment_z_distance = z_dist/100 
+        increment_x_distance = x_dist/100
+        increment_hyp_distance = np.hypot(increment_x_distance,increment_z_distance)
+        
+        logger.info(f"z_dist :{increment_z_distance}\n x_dist: {increment_x_distance}\n hyp_dist {increment_hyp_distance}")
+       
+        curr_z = curr_state["z_pos"]
+        curr_x = curr_state["x_pos"]
+        
+        z_list = curr_z.copy()
+        x_list = curr_x.copy()
+        
+        for i in range(100):
+            curr_z += increment_z_distance
+            curr_x += increment_x_distance
+            
+            z_list.append(curr_z)
+            x_list.append(curr_x)
+            
+        
+        logger.info(f"z {z_list} {x_list}")
+       
+        return None
+    
+    def drive_predict_steering(self):
+        return None
 
     def _steering_prediction(self) -> pd.DataFrame:
         """
