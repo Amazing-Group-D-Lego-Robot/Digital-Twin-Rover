@@ -8,10 +8,10 @@ import pandas as pd
 
 
 class Controller:
-    def __init__(self, headless=False):
+    def __init__(self, agent_count=2, headless=False):
         # TODO: real-time communication (further work)
         # self.agent = AgentControl()
-        self.twin_system = TwinSystem()
+        self.twin_system = [TwinSystem() for _ in range(agent_count)]
         if not headless:
             self.server = TwinServer()
 
@@ -22,7 +22,7 @@ class Controller:
 
         self.current_row = 0
 
-    def update(self) -> bool:
+    def update(self, agent_num) -> bool:
         if self.current_data is None:
             print("Load a dataset before running update!")
             return False
@@ -31,15 +31,15 @@ class Controller:
             return False
 
         # TODO: Add instructions to the dataset then feed them in here
-        #   self.twin_system.change_instruction("instruction here")
-        self.twin_system.update(self.current_data.iloc[self.current_row])
+        #   self.twin_system[0].change_instruction("instruction here")
+        self.twin_system[agent_num].update(self.current_data.iloc[self.current_row])
         self.current_row += 1
 
-        self.server.update(self.twin_system.twin, self.twin_system.environment)
+        self.server.update(self.twin_system[agent_num].twin, self.twin_system[agent_num].environment)
 
         return True
 
-    def visualise_dataframe(self) -> bool:
+    def visualise_dataframe(self, agent_num) -> bool:
         if self.predicted_state is None:
             print("Load a prediction before running predict!")
             return False
@@ -47,16 +47,16 @@ class Controller:
         if self.current_row >= len(self.predicted_state):
             return False
 
-        self.twin_system.twin.update_from_prediction(self.predicted_state.iloc[self.current_row],
+        self.twin_system[agent_num].twin.update_from_prediction(self.predicted_state.iloc[self.current_row],
                                                      cols=self.predicted_state.columns.values.tolist())
         self.current_row += 1
 
-        self.server.update(self.twin_system.twin, self.twin_system.environment)
+        self.server.update(self.twin_system[agent_num].twin, self.twin_system[agent_num].environment)
 
         return True
 
     def load_prediction(self, instructions):
-        self.predicted_env, self.predicted_state = self.twin_system.predict_next(instructions)
+        self.predicted_env, self.predicted_state = self.twin_system[0].predict_next(instructions)
         self.current_row = 0
 
         self.predicted_state.to_csv("./res/prediction_dumps/prediction_dump (" + strftime("%d-%m-%Y_%H-%M-%S", gmtime()) + ").csv")
