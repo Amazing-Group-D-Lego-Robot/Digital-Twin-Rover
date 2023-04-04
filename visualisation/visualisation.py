@@ -5,7 +5,6 @@ from networking.client import VisualClient
 from elements.menu import VisualMenu
 from elements.viewport import Viewport
 from elements.agent import Agent
-from elements.sensor_ray import SensorRay
 from elements.environment import SimulatedEnvironment
 
 Client = VisualClient()
@@ -61,14 +60,12 @@ ground = Entity(model='plane', collider='box', scale=2048, texture='grass_tintab
 
 agent_offset = [0, -0.04, 0]
 agent = Agent(model="legotest", texture="legotest_tex", shader=basic_lighting_shader, z=agent_offset[2], origin_y=agent_offset[1])
+agent.add_sensor(Vec3(0, 0.1, 0.17), Vec3(0, 0, 0.05))
+agent.add_sensor(Vec3(0, 0.1, -0.17), Vec3(0, 0, -.5))
 
 viewport = Viewport(speed=1, x=0, z=-0.5)
 viewport.gravity = 0
 viewport.position += (0, 0.4, 0)
-
-# Sensor drawing
-sensors = [SensorRay(agent, Vec3(0, 0.1, 0.17), direction=Vec3(0, 0, 0.05)),
-           SensorRay(agent, Vec3(0, 0.1, -0.17), direction=Vec3(0, 0, -.5))]
 
 # Environment
 environment = SimulatedEnvironment()
