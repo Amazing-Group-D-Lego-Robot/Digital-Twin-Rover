@@ -8,12 +8,12 @@ import pandas as pd
 
 
 class Controller:
-    def __init__(self, agent_count=2, headless=False):
+    def __init__(self, agent_count=1, headless=False):
         # TODO: real-time communication (further work)
         # self.agent = AgentControl()
         self.twin_system = [TwinSystem() for _ in range(agent_count)]
         if not headless:
-            self.server = TwinServer()
+            self.server = TwinServer(agent_count)
 
         self.current_data = None
 
@@ -35,7 +35,7 @@ class Controller:
         self.twin_system[agent_num].update(self.current_data.iloc[self.current_row])
         self.current_row += 1
 
-        self.server.update(self.twin_system[agent_num].twin, self.twin_system[agent_num].environment)
+        self.server.update(agent_num, self.twin_system[agent_num].twin, self.twin_system[agent_num].environment)
 
         return True
 
