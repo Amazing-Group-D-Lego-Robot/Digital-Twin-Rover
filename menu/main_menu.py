@@ -138,13 +138,17 @@ class MainMenu:
         self.filename = None
 
     def start_offline_controller(self):
-        self.controller = Controller()
+        """
+        Send whole recorded file to visualisation, send to agent 0 as only 1 agent is recorded
+        """
+        self.controller = Controller(agent_count=2)
         self.controller.load_data(self.filename)
 
         sleep(2)
 
         # run the controller until we reach the end of the dataset
-        while self.controller.update():
+        # send to agent 0
+        while self.controller.update(agent_num=0):
             sleep(0.1)
 
     def start_prediction(self):
@@ -153,7 +157,7 @@ class MainMenu:
         sleep(2)
 
         # run the controller until we reach the end of the dataset
-        while self.controller.visualise_dataframe():
+        while self.controller[0].visualise_dataframe():
             sleep(0.1)
 
     def load_prediction(self):

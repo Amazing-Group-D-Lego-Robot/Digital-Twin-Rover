@@ -5,28 +5,51 @@ from networking.client import VisualClient
 from elements.menu import VisualMenu
 from elements.viewport import Viewport
 from elements.agent import Agent
-from elements.sensor_ray import SensorRay
 from elements.environment import SimulatedEnvironment
 
 Client = VisualClient()
 
+@Client.event
+def agent_number(num: int):
+    print(f'Currently creating {num} agents')
+    for i in range(num):
+        # Agent creation
+        agent_offset = [0, -0.04, 0]
+        agents.append(
+            Agent(model="legotest",
+                  texture="legotest_tex",
+                  shader=basic_lighting_shader,
+                  z=agent_offset[2],
+                  origin_y=agent_offset[1])
+        )
+        agents[i].add_sensor(Vec3(0, 0.1, 0.17), Vec3(0, 0, 0.05))
+        agents[i].add_sensor(Vec3(0, 0.1, -0.17), Vec3(0, 0, -.5))
+
+        # Agent trails
+        pivot = Entity(parent=agents[i])
+        TrailRenderer(parent=pivot, x=0, y=0.04, thickness=10, color=color.blue, length=10000)
 
 @Client.event
-def new_position(world_state: dict):
+def new_position(data_packet: list):
     """
     Process the incoming world state and, update the menu, update the rover position / rotation
-    :param world_state:
+    :param data_packet:
     :return:
     """
-    # Update the menu
-    menu.update_menu(world_state, viewport.position)
+    # Parse packet
+    agent_num = data_packet[0]
+    world_state = data_packet[1]
 
-    for i, [key, val] in enumerate(menu.__dict__.items()):
-        menu_fields[i].text = f"{key}: {val:.2f}"
+    # Update the menu if main agent
+    if agent_num == 0:
+        menu.update_menu(world_state, viewport.position)
+
+        for i, [key, val] in enumerate(menu.__dict__.items()):
+            menu_fields[i].text = f"{key}: {val:.2f}"
 
     # Update the agent
-    agent.move_to(menu.get_pos())
-    agent.rotate_to(menu.get_rot())
+    agents[agent_num].move_to(menu.get_pos())
+    agents[agent_num].rotate_to(menu.get_rot())
 
 
 def update():
@@ -59,23 +82,14 @@ menu_fields = [Text(text="X", parent=app, scale=.75, x=corner[0], y=corner[1] - 
 ground = Entity(model='plane', collider='box', scale=2048, texture='grass_tintable', color=color.rgb(193, 68, 14),
                 texture_scale=(32, 32))
 
-agent_offset = [0, -0.04, 0]
-agent = Agent(model="legotest", texture="legotest_tex", shader=basic_lighting_shader, z=agent_offset[2], origin_y=agent_offset[1])
+agents = []
 
 viewport = Viewport(speed=1, x=0, z=-0.5)
 viewport.gravity = 0
 viewport.position += (0, 0.4, 0)
 
-# Sensor drawing
-sensors = [SensorRay(agent, Vec3(0, 0.1, 0.17), direction=Vec3(0, 0, 0.05)),
-           SensorRay(agent, Vec3(0, 0.1, -0.17), direction=Vec3(0, 0, -.5))]
-
 # Environment
 environment = SimulatedEnvironment()
-
-# Agent trails
-pivot = Entity(parent=agent)
-trail_renderer = TrailRenderer(parent=pivot, x=0, y=0.04, thickness=10, color=color.blue, length=10000)
 
 # Handle pausing the visual
 pause_camera = EditorCamera(enabled=False, ignore_paused=True)
