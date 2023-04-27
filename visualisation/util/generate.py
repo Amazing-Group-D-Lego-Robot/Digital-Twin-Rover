@@ -2,9 +2,11 @@ import math
 import numpy as np
 import cv2
 import json
+from time import sleep
 
-HEADLESS = True
+HEADLESS = False
 SF = 0.01
+SAFE_ZONE = 0.5
 
 class EnvironmentConverter:
     """
@@ -40,7 +42,8 @@ class EnvironmentConverter:
         for i, contour in enumerate(self.contours):
             print(f"Extracting coordinates for contour {i}/{len(self.contours)}")
 
-            approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
+            epsilon = 0.01 * cv2.arcLength(contour, True)
+            approx = cv2.approxPolyDP(contour, epsilon, True)
 
             x = approx.ravel()[0]
             y = approx.ravel()[1] - 5
@@ -54,29 +57,37 @@ class EnvironmentConverter:
             colour = self.opencv_image[centre_y, centre_x].tolist()
             colour.reverse()
 
-            if not HEADLESS:
-                cv2.drawContours(self.opencv_image, [approx], 0, (0, 0, 0), 5)
-                cv2.circle(self.opencv_image, (centre_x, centre_y), 7, (255, 255, 255), -1)
-
             # Shape detection
             if len(approx) == 4:
+                print(f"Found quadrilateral at {x}, {y}, with contours {len(approx)}")
                 shape = 'quad'
-                points = [point[0].tolist() for point in approx]
-
-                # Dimensions
+                points = [(point[0].tolist()[0]*SF, point[0].tolist()[1]*SF*-1) for point in approx]
                 _, _, w, h = cv2.boundingRect(contour)
                 dimensions = [w*SF, h*SF]
 
+            elif len(approx) != 12:
+                print(f"Found border at {x}, {y}, with contours {len(approx)}")
+                shape = 'border'
+                points = [(point[0].tolist()[0]*SF, point[0].tolist()[1]*SF*-1) for point in approx]
+                print(approx)
+                print(points)
                 if not HEADLESS:
-                    cv2.putText(self.opencv_image, "quadrilateral", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 0))
+                    for point in points:
+                        cv2.circle(self.opencv_image, (int(point[0]/SF), int(point[1]/SF)), 7, (0, 255, 255), -1)
+
+                dimensions = None
 
             else:
+                print(f"Found circle at {x}, {y}, with contours {len(approx)}")
                 shape = 'origin'
                 points = None
                 dimensions = None
                 self.origin_index = i
-                if not HEADLESS:
-                    cv2.putText(self.opencv_image, "circle", (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 0))
+
+            if not HEADLESS:
+                cv2.drawContours(self.opencv_image, [approx], 0, (0, 0, 0), 5)
+                cv2.circle(self.opencv_image, (centre_x, centre_y), 7, (255, 255, 255), -1)
+                cv2.putText(self.opencv_image, shape, (x, y), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 0))
 
             current_structure = {
                 'shape': shape,
@@ -90,12 +101,12 @@ class EnvironmentConverter:
 
         if not HEADLESS:
             cv2.imshow('shapes', self.opencv_image)
-            cv2.waitkey(0)
+            cv2.waitKey(0)
             cv2.destroyAllWindows()
 
     def dimension_calculation(self):
         for i, structure in enumerate(self.environment_data):
-            if structure['shape'] == 'origin': continue
+            if structure['shape'] != 'quad': continue
 
             points = structure['points']
             side_lengths = []
@@ -114,15 +125,8 @@ class EnvironmentConverter:
             self.environment_data[i] = structure
 
     def sort_corners(self):
-        # invert the y because ursina has the _wrong_ coordinate system
         for i, structure in enumerate(self.environment_data):
-            if structure['shape'] == 'origin': continue
-
-            for j, point in enumerate(structure['points']):
-                self.environment_data[i]['points'][j][1] *= -1
-
-        for i, structure in enumerate(self.environment_data):
-            if structure['shape'] == 'origin': continue
+            if structure['shape'] != 'quad': continue
 
             # Bottom left corner
             bl_x = min([point[0] for point in structure['points']])
@@ -141,10 +145,17 @@ class EnvironmentConverter:
             lr_x = max([point[0] for point in structure['points'] if point[1] == lr_y])
 
             self.environment_data[i]['points'] = [
-                [bl_x*SF, bl_y*SF],
-                [ul_x*SF, ul_y*SF],
-                [ur_x*SF, ur_y*SF],
-                [lr_x*SF, lr_y*SF]
+                [bl_x, bl_y],
+                [ul_x, ul_y],
+                [ur_x, ur_y],
+                [lr_x, lr_y]
+            ]
+
+            self.environment_data[i]['safe-points'] = [
+                [bl_x - SAFE_ZONE, bl_y - SAFE_ZONE],
+                [ul_x - SAFE_ZONE, ul_y + SAFE_ZONE],
+                [ur_x + SAFE_ZONE, ur_y + SAFE_ZONE],
+                [lr_x + SAFE_ZONE, lr_y - SAFE_ZONE]
             ]
 
     def dump(self):

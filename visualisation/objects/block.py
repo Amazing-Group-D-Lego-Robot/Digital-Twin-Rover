@@ -39,5 +39,5 @@ class Block:
         entity = Entity(
             model=mesh,
             shader=basic_lighting_shader,
-            origin=[-centre[0], 0, -centre[1]],
+            position=[centre[0], 0, centre[1]],
             color=color.rgb(colour[0], colour[1], colour[2]))
