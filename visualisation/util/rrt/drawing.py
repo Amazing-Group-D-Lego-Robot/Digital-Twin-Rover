@@ -41,9 +41,15 @@ def loadObstacles(image_path):
 def get_path(parent, output_path):
     curr_path = []
     current = goalPos
+    # Follow the parent nodes until the start position is reached:
     while parent[goalPos] and current is not None:
         cv2.circle(obstaclesSurface, current, 5, (0, 0, 255), -1)
         curr_path.append(current)
         current = parent[current]
+
+    # Draw the path:
+    for i in range(len(curr_path) - 1):
+        cv2.line(obstaclesSurface, curr_path[i], curr_path[i + 1], (0, 255, 0), 2)
+
     cv2.imwrite(output_path.replace(".png", '-output.png'), obstaclesSurface)
     return curr_path
