@@ -110,32 +110,33 @@ class DumbPredictor(Predictor):
         """
         logger.info("Drive Prediction on instruction")
         logger.info(self.state.columns)
-        
+
         curr_state = self.state.iloc[-1:]
         steering = np.array(curr_state["steering_pos"])
         logger.info(f"Steering in degrees {curr_state['steering_pos']} \t steering in radians {steering}")
-        
+
         # get the turning radius
-        
+
         if (steering == 0).all():
             logger.info("Straight line prediction (0 degrees of steering)")
             new_prediction = self.drive_predict_no_steering(curr_state)
         else:
             logger.info(f"Predicting for steering angle of {steering}")
             new_prediction = self.drive_predict_steering
-         
-        logger.info("End of steering prediction")   
+
+        logger.info("End of steering prediction")
         return new_prediction
 
-    def drive_predict_no_steering(self,curr_state):
-        distance_to_travel = self.properties.get("movement per degree") * np.array(float(self.inst_splt[3]),dtype=np.longdouble)
+    def drive_predict_no_steering(self, curr_state):
+        distance_to_travel = self.properties.get("movement per degree") * np.array(float(self.inst_splt[3]),
+                                                                                   dtype=np.longdouble)
         logger.info(f"Distance to travel: {distance_to_travel} (no steering)")
         y_rot = np.deg2rad(curr_state["y_rot"])
-       
+
         vel = self.properties.get("velocity")
-        
+
         # orientation in terms of cartesian cordinates
-        if (y_rot > 1.5*np.pi).all():
+        if (y_rot > 1.5 * np.pi).all():
             # +ve z, -ve x
             new_rot = y_rot - (1.5 * np.pi)
             z_dist = distance_to_travel * np.cos(new_rot)
@@ -153,34 +154,41 @@ class DumbPredictor(Predictor):
         else:
             z_dist = distance_to_travel * np.cos(y_rot)
             x_dist = distance_to_travel * np.sin(y_rot)
-         
-        increment_z_distance = (z_dist/100)[0] 
-        increment_x_distance = (x_dist/100)[0]
-        
+
+        increment_z_distance = (z_dist / 100)[0]
+        increment_x_distance = (x_dist / 100)[0]
+
         logger.info(f"increment z :{increment_z_distance}\n increment x: {increment_x_distance}")
-       
-        curr_z = curr_state["z_pos"][0]
-        curr_x = curr_state["x_pos"][0]
-        
+
+        curr_z = curr_state["z_pos"].iloc[-1:]
+        curr_x = curr_state["x_pos"].iloc[-1:]
+
         new_z = curr_z.copy()
         new_x = curr_x.copy()
         new_y = y_rot.copy()
-        
-        for i in range(1,101):
+
+        for i in range(1, 101):
             curr_z += increment_z_distance
-            new_z = np.vstack((new_z,curr_z))
-            
+            new_z = np.vstack((new_z, curr_z))
+
             curr_x += increment_x_distance
             new_x = np.vstack((new_x, curr_x))
-            
+
             new_y = np.vstack((new_y, y_rot))
-            
-        
+
         logger.info(f"new_z {new_z}")
         logger.info(f"new_x {new_x}")
-       
-        return None
-    
+
+        temp_state = curr_state.iloc[-1:]
+
+        new_state = pd.DataFrame(columns=curr_state.columns)
+        for i in range(0,101):
+            temp_state["z_pos"] = new_z[i]
+            temp_state["x_pos"] = new_x[i]
+            new_state = new_state.append(temp_state, ignore_index=True)
+
+        return new_state
+
     def drive_predict_steering(self):
         return None
 
@@ -268,5 +276,3 @@ def _get_position_change_steering(current, new) -> list:
         position_changer = [i for i in range(current, new + 1)]
 
     return position_changer
-
-
