@@ -100,7 +100,7 @@ def update():
         predicted_path = predict_path(
             agents[0].position,
             environment.selected_block,
-            environment.blocks[environment.selected_block].centre
+            environment.blocks[environment.selected_block].centre,
         )
         environment.draw_waypoints(predicted_path)
         reset_prediction()

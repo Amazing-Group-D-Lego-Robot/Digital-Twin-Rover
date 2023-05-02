@@ -14,7 +14,7 @@ def collision(src, dst, obstacles):
     curr = list(src)
     while dist(curr, dst) > 1:
         intCurr = int(curr[1]), int(curr[0])
-        if obstacles[intCurr].tolist().reverse() == OBSTACLES_COLOR:
+        if tuple(obstacles[intCurr].tolist()[::-1]) == OBSTACLES_COLOR:
             return True
         curr[0] += vx
         curr[1] += vy

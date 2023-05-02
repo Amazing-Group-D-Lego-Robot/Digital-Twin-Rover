@@ -6,8 +6,6 @@ from objects.sphere import Sphere
 
 class Line:
     def __init__(self, a: Sphere, b: Sphere, colour: list):
-        print(f"Line from {a.entity.position} to {b.entity.position}")
-
         self.entity = Entity(
             model=Mesh(vertices=[a.entity.position, b.entity.position], mode='line', thickness=5),
             shader=basic_lighting_shader,

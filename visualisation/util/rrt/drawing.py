@@ -38,12 +38,12 @@ def loadObstacles(image_path):
     obstaclesSurface = cv2.imread(image_path)
 
 
-def get_path(parent):
+def get_path(parent, output_path):
     curr_path = []
     current = goalPos
-    print(parent)
     while parent[goalPos] and current is not None:
-        print(current)
+        cv2.circle(obstaclesSurface, current, 5, (0, 0, 255), -1)
         curr_path.append(current)
         current = parent[current]
+    cv2.imwrite(output_path.replace(".png", '-output.png'), obstaclesSurface)
     return curr_path

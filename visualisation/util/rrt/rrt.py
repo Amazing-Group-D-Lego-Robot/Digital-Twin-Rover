@@ -26,8 +26,8 @@ def rrt(start, goal, obstacles):
     startTime = time.perf_counter()
 
     while not inside(current, goal):
-        if util.rrt.drawing.showInfo:  # util.rrt.drawing-related.
-            elapsed = time.perf_counter() - startTime
+        # if util.rrt.drawing.showInfo:  # util.rrt.drawing-related.
+        #     elapsed = time.perf_counter() - startTime
             # util.rrt.drawing.updateInfo(elapsed, nodes, height)
             # util.rrt.drawing.update()
 

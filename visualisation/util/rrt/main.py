@@ -15,7 +15,7 @@ def rrt_start(start_pos, goal_pos, image_path):
 
     # A path was found
     util.rrt.drawing.clearEdgesPool()
-    path = util.rrt.drawing.get_path(tree)
+    path = util.rrt.drawing.get_path(tree, image_path)
 
     # minus each y value from the height of the image
     corrected_path = [(node[1], node[0]) for node in path]
