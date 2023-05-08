@@ -51,7 +51,7 @@ class Controller:
                                                      cols=self.predicted_state.columns.values.tolist())
         self.current_row += 1
 
-        self.server.update(self.twin_system[agent_num].twin, self.twin_system[agent_num].environment)
+        self.server.update(agent_num, self.twin_system[agent_num].twin, self.twin_system[agent_num].environment)
 
         return True
 

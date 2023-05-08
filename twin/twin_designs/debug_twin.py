@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from scipy.spatial.transform import Rotation as R
+
 from twin.predictors.predictor import Predictor
 from twin.sensors.color_sensor import ColorSensor
 from twin.sensors.sensor import Sensor
@@ -48,18 +50,50 @@ class DebugTwinModel(TwinModel):
 
 class DebugPredictor(Predictor):
     def __init__(self):
-        # memory and storage goes here
-        pass
+        # PROPERTIES
+        self.wheel_diameter = 0.088  # diameter of the driving wheels in m
+        self.movement_per_degree = (self.wheel_diameter * 3.141592654) / 360  # m of movement with 1 degree of turn
+        self.degrees_yaw_change_per_degree_steer_angle_for_one_degree_drive = 0.1
 
     def predict_instruction(self, environment: TwinEnvironment, instruction: str, current_state: pd.DataFrame) -> pd.DataFrame:
-        ret = current_state.copy()
-        ret["z_pos"] += 0.01
-        ret["A"] += 0.1
+        def get_forwards(yaw):
+            r = R.from_euler("xyz", np.array([0., yaw, 0.]), degrees=True)
+            retv = r.apply(np.array([0., 0., 1.]))
+            #print(retv)
+            return retv
 
-        for i in range(99):
-            temp = ret.iloc[-1:].copy()
-            temp["z_pos"] += 0.01
-            temp["A"] += 0.1
-            ret = pd.concat([ret, temp])
+        ret = current_state.copy()
+
+        if instruction.split(" ")[0] == "I:MOTOR":
+            #print(int(instruction.split(" ")[3]))
+            # move steer motor
+            if instruction.split(" ")[1] == "A":
+                ret["A"] += int(instruction.split(" ")[3])
+
+            # drive forwards
+            if instruction.split(" ")[1] == "C":
+                # make a new row for each degree of movement
+                for i in range(abs(int(instruction.split(" ")[3]))):
+                    temp = ret.iloc[-1:].copy()
+
+                    # update yaw so we turn
+                    temp["Yaw"] = float(temp["Yaw"]) + (float(temp["A"]) * self.degrees_yaw_change_per_degree_steer_angle_for_one_degree_drive)
+
+                    # move forwards
+                    current_pos = np.array([float(temp["x_pos"]), float(temp["y_pos"]), float(temp["z_pos"])])
+
+                    if int(instruction.split(" ")[3]) < 0:
+                        current_pos -= get_forwards(float(temp["Yaw"])) * self.movement_per_degree
+                    else:
+                        current_pos += get_forwards(float(temp["Yaw"])) * self.movement_per_degree
+
+                    # update values in dataframe
+                    temp["C"] += -1 if int(instruction.split(" ")[3]) < 0 else 1
+                    temp["x_pos"] = current_pos[0]
+                    temp["y_pos"] = current_pos[1]
+                    temp["z_pos"] = current_pos[2]
+                    temp["y_rot"] = float(temp["Yaw"])
+
+                    ret = pd.concat([ret, temp])
 
         return ret
