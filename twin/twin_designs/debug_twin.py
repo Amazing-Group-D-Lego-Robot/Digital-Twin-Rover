@@ -44,16 +44,15 @@ class DebugTwinModel(TwinModel):
     def _update(self, sensor_data: dict, environment):
         self.rot[1] = self.sensors["Yaw"].value
 
-        self.pos += self.get_forwards() * (
-                ((self.sensor_deltas["A"] + self.sensor_deltas["B"]) / 2) * self.movement_per_degree)
+        self.pos += self.get_forwards() * ((self.sensor_deltas["A"]) * self.movement_per_degree)
 
 
 class DebugPredictor(Predictor):
     def __init__(self):
         # PROPERTIES
-        self.wheel_diameter = 0.088  # diameter of the driving wheels in m
+        self.wheel_diameter = 0.079  # diameter of the driving wheels in m
         self.movement_per_degree = (self.wheel_diameter * 3.141592654) / 360  # m of movement with 1 degree of turn
-        self.degrees_yaw_change_per_degree_steer_angle_for_one_degree_drive = 0.1
+        self.degrees_yaw_change_per_degree_steer_angle_for_one_degree_drive = 0.0122
 
     def predict_instruction(self, environment: TwinEnvironment, instruction: str, current_state: pd.DataFrame) -> pd.DataFrame:
         def get_forwards(yaw):
@@ -64,7 +63,7 @@ class DebugPredictor(Predictor):
 
         ret = current_state.copy()
 
-        if instruction.split(" ")[0] == "I:MOTOR":
+        if instruction.split(" ")[0] == "MOTOR":
             #print(int(instruction.split(" ")[3]))
             # move steer motor
             if instruction.split(" ")[1] == "A":
@@ -77,7 +76,7 @@ class DebugPredictor(Predictor):
                     temp = ret.iloc[-1:].copy()
 
                     # update yaw so we turn
-                    temp["Yaw"] = float(temp["Yaw"]) + (float(temp["A"]) * self.degrees_yaw_change_per_degree_steer_angle_for_one_degree_drive)
+                    temp["Yaw"] = float(temp["Yaw"]) + ((float(temp["A"]) * self.degrees_yaw_change_per_degree_steer_angle_for_one_degree_drive) * (-1 if int(instruction.split(" ")[3]) < 0 else 1))
 
                     # move forwards
                     current_pos = np.array([float(temp["x_pos"]), float(temp["y_pos"]), float(temp["z_pos"])])

@@ -22,12 +22,21 @@ class Controller:
 
         self.current_row = 0
 
+        self.xs = []
+        self.ys = []
+        self.yaws = []
+        self.steer = []
+        self.drive = []
+
     def update(self, agent_num) -> bool:
         if self.current_data is None:
             print("Load a dataset before running update!")
             return False
 
         if self.current_row >= len(self.current_data):
+            print("xs:", self.xs)
+            print("ys:", self.ys)
+
             return False
 
         # TODO: Add instructions to the dataset then feed them in here
@@ -37,6 +46,9 @@ class Controller:
 
         self.server.update(agent_num, self.twin_system[agent_num].twin, self.twin_system[agent_num].environment)
 
+        self.xs.append(float(self.twin_system[agent_num].twin.pos[0]))
+        self.ys.append(float(self.twin_system[agent_num].twin.pos[2]))
+
         return True
 
     def visualise_dataframe(self, agent_num) -> bool:
@@ -45,13 +57,25 @@ class Controller:
             return False
 
         if self.current_row >= len(self.predicted_state):
+            print("xs:", self.xs)
+            print("ys:", self.ys)
+            print("yaws:", self.yaws)
+            print("steers:", self.steer)
+            print("drives:", self.drive)
+
             return False
 
         self.twin_system[agent_num].twin.update_from_prediction(self.predicted_state.iloc[self.current_row],
                                                      cols=self.predicted_state.columns.values.tolist())
-        self.current_row += 1
+        self.current_row += 10
 
         self.server.update(agent_num, self.twin_system[agent_num].twin, self.twin_system[agent_num].environment)
+
+        self.xs.append(float(self.twin_system[agent_num].twin.pos[0]))
+        self.ys.append(float(self.twin_system[agent_num].twin.pos[2]))
+        self.yaws.append(float(self.twin_system[agent_num].twin.sensors["Yaw"].value))
+        self.steer.append(float(self.twin_system[agent_num].twin.sensors["C"].value))
+        self.drive.append(float(self.twin_system[agent_num].twin.sensors["A"].value))
 
         return True
 
