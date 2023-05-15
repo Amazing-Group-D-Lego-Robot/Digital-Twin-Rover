@@ -36,6 +36,9 @@ def clearEdgesPool():
 def loadObstacles(image_path):
     global obstaclesSurface
     obstaclesSurface = cv2.imread(image_path)
+    WIDTH = obstaclesSurface.shape[0]
+    HEIGHT = obstaclesSurface.shape[1]
+    print(f"Loading image of dimensions {obstaclesSurface.shape} from file {image_path}")
 
 
 def get_path(parent, output_path):

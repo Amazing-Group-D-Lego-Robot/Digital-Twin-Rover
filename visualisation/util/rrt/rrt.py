@@ -13,7 +13,6 @@ def rrt(start, goal, obstacles):
     """
     parent = {start: None}
     depth = {start: 0}
-    final_path = []
 
     container = pointsContainer()
     container.insert(start)
@@ -23,15 +22,8 @@ def rrt(start, goal, obstacles):
 
     current = start
 
-    startTime = time.perf_counter()
-
     while not inside(current, goal):
-        # if util.rrt.drawing.showInfo:  # util.rrt.drawing-related.
-        #     elapsed = time.perf_counter() - startTime
-            # util.rrt.drawing.updateInfo(elapsed, nodes, height)
-            # util.rrt.drawing.update()
-
-        sample = randomPoint()
+        sample = randomPoint(obstacles)
         nearest = container.NNS(sample)
 
         if (sample == nearest):  # do not allow two identical points.
@@ -41,12 +33,9 @@ def rrt(start, goal, obstacles):
             container.insert(sample)
             parent[sample] = nearest
             depth[sample] = depth[nearest] + 1
-
             height = max(height, depth[sample])
             nodes += 1
-
             util.rrt.drawing.addEdge((nearest, sample))
-
             current = sample
 
     if not goal in parent:
@@ -55,8 +44,5 @@ def rrt(start, goal, obstacles):
         height = max(height, depth[goal])
         nodes += 1
         util.rrt.drawing.addEdge((current, goal))
-
-    # elapsed = time.perf_counter() - startTime
-    # util.rrt.drawing.updateInfo(elapsed, nodes, height, depth[goal])
 
     return parent

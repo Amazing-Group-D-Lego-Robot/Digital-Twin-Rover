@@ -11,11 +11,11 @@ def dist(p1, p2):
     """
     return math.dist(p1, p2)
 
-def randomPoint():
+def randomPoint(obstacles):
     """
     Returns coordinates of a random point on the screen.
     """
-    return rand(WIDTH), rand(HEIGHT)
+    return rand(obstacles.shape[1]), rand(obstacles.shape[0])
 
 def inside(point, center):
     """

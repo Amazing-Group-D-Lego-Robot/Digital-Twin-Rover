@@ -32,6 +32,16 @@ class EnvironmentConverter:
         ret, thrash = cv2.threshold(grey_img, 240, 255, cv2.CHAIN_APPROX_NONE)
         self.contours, hierarchy = cv2.findContours(thrash, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
+        if not HEADLESS:
+            contour_img = grey_img.copy()
+
+            cv2.drawContours(contour_img, self.contours, -1, (0, 0, 255), 2)
+
+            # Show the resulting image
+            cv2.imshow("Contours", contour_img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
     def convert(self):
         print(f"Starting to convert {self.input_filename} for Ursina")
         self.extraction()
@@ -59,7 +69,7 @@ class EnvironmentConverter:
             centre_y = int(moment["m01"] / moment["m00"])
 
             # Colour extraction, BGR -> RGB
-            print(centre_x, centre_y)
+            # print(centre_x, centre_y)
             colour = img[centre_y, centre_x].tolist()
             colour.reverse()
 
@@ -102,6 +112,7 @@ class EnvironmentConverter:
             }
 
             self.environment_data.append(current_structure)
+            print()
 
         if not HEADLESS:
             cv2.imshow('shapes', img)
