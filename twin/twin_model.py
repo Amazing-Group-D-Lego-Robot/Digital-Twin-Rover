@@ -129,7 +129,7 @@ class TwinModel:
     def update_from_prediction(self, prediction, cols):
         for col in cols:
             if col not in ["x_pos", "x_vel", "x_acc", "x_rot", "y_pos", "y_vel", "y_acc", "y_rot", "z_pos", "z_vel",
-                           "z_acc", "z_rot"]:
+                           "z_acc", "z_rot", "Unnamed: 0"]:
                 self.sensors[col].value = prediction[col]
 
         self.pos = np.array([prediction["x_pos"], prediction["y_pos"], prediction["z_pos"]])
