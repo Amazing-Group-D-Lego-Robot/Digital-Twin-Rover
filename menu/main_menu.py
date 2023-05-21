@@ -17,6 +17,8 @@ class MainMenu:
 
         self.controller = None
         self.filename = None
+        self.dumb_predictor = None
+        self.advanced_predictor = None
         self.root = tk.Tk()
         self.root.resizable(width=False, height=False)
         self.root.minsize(width=500, height=500)
@@ -73,20 +75,33 @@ class MainMenu:
 
     def play_offline(self):
         """Functionality for launching offline play"""
+        self.controller = Controller(agent_count=2)
 
-        while self.filename is None:
-            self.filename = fd.askopenfilename()
+        # while self.filename is None:
+        #     self.filename = fd.askopenfilename()
+        #
+        # while self.dumb_predictor is None:
+        #     self.dumb_predictor = fd.askopenfilename()
+        #
+        # while self.advanced_predictor is None:
+        #     self.filename = fd.askopenfilename()
+
+        self.filename = "res/logs/motor data, lego version.csv"
+        self.dumb_predictor = "res/prediction_dumps/prediction_dump (21-05-2023_13-33-07).csv"
 
         # create threads
         thread_controller = threading.Thread(target=self.start_offline_controller)
+        thread_dumb_predictor = threading.Thread(target=self.start_dumb_predictor)
         thread_vis = threading.Thread(target=self.start_offline_vis)
 
         # start threads
         thread_controller.start()
+        thread_dumb_predictor.start()
         thread_vis.start()
 
         # end threads
         thread_controller.join()
+        thread_dumb_predictor.join()
         thread_vis.join()
         self.filename = None
 
@@ -141,7 +156,7 @@ class MainMenu:
         """
         Send whole recorded file to visualisation, send to agent 0 as only 1 agent is recorded
         """
-        self.controller = Controller(agent_count=2)
+        # self.controller = Controller(agent_count=2)
         self.controller.load_data(self.filename)
 
         sleep(2)
@@ -167,6 +182,15 @@ class MainMenu:
 
         # run the controller until we reach the end of the dataset
         while self.controller.visualise_dataframe(agent_num=0):
+            sleep(0.1)
+
+    def start_dumb_predictor(self):
+        sleep(2)
+
+        self.controller.open_prediction(self.dumb_predictor)
+
+        # run the controller until we reach the end of the dataset
+        while self.controller.visualise_dataframe(agent_num=1):
             sleep(0.1)
 
     def load_prediction(self):

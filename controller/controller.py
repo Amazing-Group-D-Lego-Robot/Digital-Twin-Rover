@@ -85,6 +85,10 @@ class Controller:
 
         self.predicted_state.to_csv("./res/prediction_dumps/prediction_dump (" + strftime("%d-%m-%Y_%H-%M-%S", gmtime()) + ").csv")
 
+    def open_prediction(self, path):
+        self.predicted_state = pd.read_csv(path)
+        self.current_row = 0
+
     def load_data(self, path):
         """
         Function for loading offline file
