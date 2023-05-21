@@ -50,7 +50,8 @@ class DumbPredictor(Predictor):
             "prev_phi": 0,
             "elapsed_time": 0,
             "wheel_rotation_pos": np.array(0),
-            "wheel_base": np.array(0.156)
+            "phi": 0,
+
         }
 
     def predict_instruction(self, environment: TwinEnvironment, instruction: str,
@@ -122,7 +123,7 @@ class DumbPredictor(Predictor):
             new_prediction = self.drive_predict_no_steering(curr_state)
         else:
             logger.info(f"Predicting for steering angle of {steering}")
-            new_prediction = self.drive_predict_steering
+            new_prediction = self.drive_predict_steering(curr_state=curr_state,steering_angle=steering)
 
         logger.info("End of steering prediction")
         return new_prediction
@@ -189,8 +190,40 @@ class DumbPredictor(Predictor):
 
         return new_state
 
-    def drive_predict_steering(self):
-        return None
+    def drive_predict_steering(self,curr_state, steering_angle, vel):
+        distance_to_travel = self.properties.get("movement per degree") * np.array(float(self.inst_splt[3]),
+                                                                                   dtype=np.longdouble)
+
+        #Paulwessen's properties
+        lf = self.properties.get("lf")
+        lb = self.properties.get("lb")
+        lw = self.properties.get("lw")
+        vel = self.properties.get("velocity")
+        sim_dt = self.properties.get("sim_dt")
+        prev_phi = self.properties.get("phi")
+
+
+        # Calculate heading of the vehicle.
+        beta = np.arctan(lb * np.tan(steering_angle) / (lb + lf))
+        phi = prev_phi + vel * sim_dt * np.cos(beta) * np.tan(steering_angle) / (lb + lf)
+        self.properties["phi"] = phi
+
+        new_z = curr_state["z_pos"].iloc[-1:]
+        new_x = curr_state["x_pos"].iloc[-1:]
+        y_rot = np.deg2rad(curr_state["y_rot"].iloc[-1:])
+
+        for i in range(sim_dt):
+
+            # Calculate vehicles's position.
+            new_z =  new_z + vel * sim_dt * np.cos(beta + phi) # may actually be x (x-axis in 2d)
+            new_x = new_x + vel * sim_dt * np.sin(beta + phi) # may actually be z (y-axis in 2d) (i think)
+
+
+
+        new_state = pd.DataFrame(columns=curr_state.columns)
+        #add new_states
+
+        return new_state
 
     def _steering_prediction(self) -> pd.DataFrame:
         """
