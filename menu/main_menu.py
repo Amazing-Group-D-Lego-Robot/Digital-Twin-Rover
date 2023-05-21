@@ -35,7 +35,7 @@ class MainMenu:
 
         # Create the buttons
         self.buttons = [tk.Button(text="Generate Environment", command=self.generate_environment, font="Helvetica"),
-                        tk.Button(text="Play Offline Scenario", command=self.play_offline, font="Helvetica"),
+                        tk.Button(text="DEMO", command=self.play_offline, font="Helvetica"),
                         tk.Button(text="Play Live Scenario", command=self.play_live, font="Helvetica"),
                         tk.Button(text="Generate Prediction (only dump)", command=self.generate_prediction,
                                   font="Helvetica"),
@@ -78,7 +78,7 @@ class MainMenu:
         """Functionality for launching offline play"""
         self.controller = Controller(agent_count=3)
 
-        self.filename = "res/logs/motor data, lego version.csv"
+        self.filename = "res/logs/demo.txt"
         self.dumb_predictor = "res/prediction_dumps/dumb.csv"
         self.advanced_predictor = "res/prediction_dumps/advanced.csv"
 
@@ -98,6 +98,8 @@ class MainMenu:
             self.controller.update(agent_num=0)
             self.controller.visualise_dumb_dataframe(agent_num=1)
             self.controller.visualise_adv_dataframe(agent_num=2)
+            self.controller.visualise_dumb_dataframe(agent_num=1) # do it twice bc update is faster
+            self.controller.visualise_adv_dataframe(agent_num=2) # do it twice bc update is faster
             sleep(0.1)
 
         self.filename = None

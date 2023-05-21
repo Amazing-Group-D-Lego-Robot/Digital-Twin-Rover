@@ -38,7 +38,7 @@ class DebugTwinModel(TwinModel):
         ])
 
         # PROPERTIES
-        self.wheel_diameter = 0.088  # diameter of the driving wheels in m
+        self.wheel_diameter = 0.095  # diameter of the driving wheels in m
         self.movement_per_degree = (self.wheel_diameter * 3.141592654) / 360  # m of movement with 1 degree of turn
 
     def _update(self, sensor_data: dict, environment):

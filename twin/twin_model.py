@@ -55,7 +55,7 @@ class TwinModel:
 
     def get_forwards(self):
         r = R.from_euler("xyz", self.rot, degrees=True)
-        return r.apply(np.array([0., 0., 1.]))
+        return r.apply(np.array([0., 0., -1.]))
 
     def copy(self):
         # copy function for making predictions
