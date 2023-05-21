@@ -36,9 +36,9 @@ class Controller:
             return False
 
         if self.current_row_primary >= len(self.current_data):
-            print("xs:", self.xs)
-            print("ys:", self.ys)
-
+            # print("xs:", self.xs)
+            # print("ys:", self.ys)
+            # self.current_row_primary += 1
             return False
 
         # TODO: Add instructions to the dataset then feed them in here
@@ -59,11 +59,11 @@ class Controller:
             return False
 
         if self.dumb_predictor_row >= len(self.predicted_state):
-            print("xs:", self.xs)
-            print("ys:", self.ys)
-            print("yaws:", self.yaws)
-            print("steers:", self.steer)
-            print("drives:", self.drive)
+            # print("xs:", self.xs)
+            # print("ys:", self.ys)
+            # print("yaws:", self.yaws)
+            # print("steers:", self.steer)
+            # print("drives:", self.drive)
 
             return False
 
@@ -103,3 +103,9 @@ class Controller:
 
         self.current_data = df
         self.current_row_primary = 0
+
+    def data_remaining(self):
+        basic = self.current_row_primary < len(self.current_data)
+        dumb = self.dumb_predictor_row < len(self.predicted_state)
+
+        return basic or dumb

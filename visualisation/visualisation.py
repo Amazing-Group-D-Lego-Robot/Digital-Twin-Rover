@@ -79,6 +79,7 @@ def update():
     Ursina update function, ran every ursina update, not necessarily every frame
     :return:
     """
+
     # Process network communications
     while len(Client.events_manager.events) > 0:
         Client.process_net_events()

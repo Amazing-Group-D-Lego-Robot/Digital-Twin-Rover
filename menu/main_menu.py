@@ -37,7 +37,8 @@ class MainMenu:
         self.buttons = [tk.Button(text="Generate Environment", command=self.generate_environment, font="Helvetica"),
                         tk.Button(text="Play Offline Scenario", command=self.play_offline, font="Helvetica"),
                         tk.Button(text="Play Live Scenario", command=self.play_live, font="Helvetica"),
-                        tk.Button(text="Generate Prediction (only dump)", command=self.generate_prediction, font="Helvetica"),
+                        tk.Button(text="Generate Prediction (only dump)", command=self.generate_prediction,
+                                  font="Helvetica"),
                         tk.Button(text="Play Prediction", command=self.play_prediction, font="Helvetica"),
                         tk.Button(text="Exit", command=self.close, font="Helvetica")]
 
@@ -90,19 +91,32 @@ class MainMenu:
         self.dumb_predictor = "res/prediction_dumps/prediction_dump (21-05-2023_13-33-07).csv"
 
         # create threads
-        thread_controller = threading.Thread(target=self.start_offline_controller)
-        thread_dumb_predictor = threading.Thread(target=self.start_dumb_predictor)
-        thread_vis = threading.Thread(target=self.start_offline_vis)
+        # thread_controller = threading.Thread(target=self.start_offline_controller)
+        # thread_dumb_predictor = threading.Thread(target=self.start_dumb_predictor)
+        # thread_vis = threading.Thread(target=self.start_offline_vis)
 
         # start threads
-        thread_controller.start()
-        thread_dumb_predictor.start()
-        thread_vis.start()
+        # thread_controller.start()
+        # thread_dumb_predictor.start()
+        # thread_vis.start()
 
         # end threads
-        thread_controller.join()
-        thread_dumb_predictor.join()
-        thread_vis.join()
+        # thread_controller.join()
+        # thread_dumb_predictor.join()
+        # thread_vis.join()
+
+        sleep(2)
+
+        self.controller.load_data(self.filename)
+        self.controller.open_prediction(self.dumb_predictor)
+
+        while self.controller.data_remaining():
+            print(f"Basic: {self.controller.current_row_primary}/{len(self.controller.current_data)}, "
+                  f"Dumb: {self.controller.dumb_predictor_row}/{len(self.controller.predicted_state)}")
+            self.controller.update(agent_num=0)
+            self.controller.visualise_dataframe(agent_num=1)
+            sleep(0.1)
+
         self.filename = None
 
     def generate_environment(self):
