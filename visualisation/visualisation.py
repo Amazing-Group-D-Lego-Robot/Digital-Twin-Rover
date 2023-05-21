@@ -16,6 +16,7 @@ Client = VisualClient()
 last_quad_change = time()
 last_prediction = time()
 
+trail_colours = [color.pink, color.blue, color.yellow]
 
 def reset_quad_change():
     global last_quad_change
@@ -37,6 +38,7 @@ def agent_number(num: int):
         agents.append(
             Agent(model="legotest",
                   texture="legotest_tex",
+                  scale=50,
                   shader=basic_lighting_shader,
                   position=agent_offset,
                   )
@@ -46,7 +48,7 @@ def agent_number(num: int):
 
         # Agent trails
         pivot = Entity(parent=agents[i])
-        TrailRenderer(parent=pivot, x=0, y=0.04, thickness=10, color=color.blue, length=10000)
+        TrailRenderer(parent=pivot, x=0, y=0.04, thickness=10, color=trail_colours[i], length=10000)
 
 
 @Client.event

@@ -20,7 +20,9 @@ class Controller:
         self.predicted_state = None
         self.predicted_env = None
 
-        self.current_row = 0
+        self.current_row_primary = 0
+        self.dumb_predictor_row = 0
+        self.advanced_predictor_row = 0
 
         self.xs = []
         self.ys = []
@@ -33,7 +35,7 @@ class Controller:
             print("Load a dataset before running update!")
             return False
 
-        if self.current_row >= len(self.current_data):
+        if self.current_row_primary >= len(self.current_data):
             print("xs:", self.xs)
             print("ys:", self.ys)
 
@@ -41,8 +43,8 @@ class Controller:
 
         # TODO: Add instructions to the dataset then feed them in here
         #   self.twin_system[0].change_instruction("instruction here")
-        self.twin_system[agent_num].update(self.current_data.iloc[self.current_row])
-        self.current_row += 1
+        self.twin_system[agent_num].update(self.current_data.iloc[self.current_row_primary])
+        self.current_row_primary += 1
 
         self.server.update(agent_num, self.twin_system[agent_num].twin, self.twin_system[agent_num].environment)
 
@@ -56,7 +58,7 @@ class Controller:
             print("Load a prediction before running predict!")
             return False
 
-        if self.current_row >= len(self.predicted_state):
+        if self.dumb_predictor_row >= len(self.predicted_state):
             print("xs:", self.xs)
             print("ys:", self.ys)
             print("yaws:", self.yaws)
@@ -65,9 +67,9 @@ class Controller:
 
             return False
 
-        self.twin_system[agent_num].twin.update_from_prediction(self.predicted_state.iloc[self.current_row],
+        self.twin_system[agent_num].twin.update_from_prediction(self.predicted_state.iloc[self.dumb_predictor_row],
                                                      cols=self.predicted_state.columns.values.tolist())
-        self.current_row += 10
+        self.dumb_predictor_row += 10
 
         self.server.update(agent_num, self.twin_system[agent_num].twin, self.twin_system[agent_num].environment)
 
@@ -81,13 +83,13 @@ class Controller:
 
     def load_prediction(self, instructions):
         self.predicted_env, self.predicted_state = self.twin_system[0].predict_next(instructions)
-        self.current_row = 0
+        self.dumb_predictor_row = 0
 
         self.predicted_state.to_csv("./res/prediction_dumps/prediction_dump (" + strftime("%d-%m-%Y_%H-%M-%S", gmtime()) + ").csv")
 
     def open_prediction(self, path):
         self.predicted_state = pd.read_csv(path)
-        self.current_row = 0
+        self.dumb_predictor_row = 0
 
     def load_data(self, path):
         """
@@ -100,4 +102,4 @@ class Controller:
         df.fillna(method="backfill", inplace=True)
 
         self.current_data = df
-        self.current_row = 0
+        self.current_row_primary = 0

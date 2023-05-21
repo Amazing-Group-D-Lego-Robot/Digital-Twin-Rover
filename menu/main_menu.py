@@ -164,7 +164,6 @@ class MainMenu:
         """
         Send whole recorded file to visualisation, send to agent 0 as only 1 agent is recorded
         """
-        # self.controller = Controller(agent_count=2)
         self.controller.load_data(self.filename)
 
         sleep(2)
