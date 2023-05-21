@@ -6,6 +6,9 @@ from ursina import color
 class Block:
     def __init__(self, coords: list, height: int, centre: list, colour: list):
 
+        self.height = height
+        self.centre = centre
+
         mesh = Mesh(vertices=[
             [coords[1][0], 0, coords[1][1]],        # 0
             [coords[2][0], 0, coords[2][1]],        # 1
@@ -36,8 +39,8 @@ class Block:
                 [-1, 1, 1],     # 7
             ])
 
-        entity = Entity(
+        self.entity = Entity(
             model=mesh,
             shader=basic_lighting_shader,
-            origin=[-centre[0], 0, -centre[1]],
+            # position=[centre[0], 0, centre[1]],
             color=color.rgb(colour[0], colour[1], colour[2]))

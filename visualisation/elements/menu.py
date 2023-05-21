@@ -34,9 +34,9 @@ class VisualMenu:
         :param world_state:
         :return:
         """
-        self.x_pos = world_state["_pos"][0]
-        self.y_pos = world_state["_pos"][1]
-        self.z_pos = world_state["_pos"][2]
+        self.x_pos = world_state["_pos"][0]*100
+        self.y_pos = world_state["_pos"][1]*100
+        self.z_pos = world_state["_pos"][2]*100
 
         self.x_rot = world_state["_rot"][0]
         self.y_rot = world_state["_rot"][1]

@@ -111,16 +111,24 @@ class MainMenu:
         while self.filename is None:
             self.filename = fd.askopenfilename()
 
-        environment_manager = EnvironmentConverter(self.filename)
+        output_folder = fd.askdirectory()
 
-        # create threads
+        environment_manager = EnvironmentConverter(self.filename, output_folder)
+
+        # convert for ursina
+        print("Converting for ursina")
         thread_converter = threading.Thread(target=environment_manager.convert())
-
-        # start threads
         thread_converter.start()
-
-        # end threads
         thread_converter.join()
+        print("Converted for ursina")
+
+        # convert for convert_for_rrt
+        print("Converting for rrt")
+        thread_converter = threading.Thread(target=environment_manager.convert_for_rrt())
+        thread_converter.start()
+        thread_converter.join()
+        print("Converted for rrt")
+
         self.filename = None
 
     def play_prediction(self):

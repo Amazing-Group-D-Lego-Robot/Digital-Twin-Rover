@@ -35,7 +35,7 @@ class TwinEnvironment:
                 break
 
         for structure in self.environment:
-            if structure['shape'] == 'origin': continue
+            if structure['shape'] != 'quad': continue
 
             print(structure['points'], structure['height'], structure['colour'])
 
