@@ -1,4 +1,5 @@
 import logging
+import math
 
 import numpy as np
 import pandas as pd
@@ -40,11 +41,11 @@ class DumbPredictor(Predictor):
         # properties that aren't given in self.state
         self.properties = {
             "turning radius": None,
-            "wheel diameter": np.array(0.088),
-            "movement per degree": np.array((0.088 * pi) / 360, dtype=np.longdouble),
+            "wheel diameter": np.array(0.079),
+            "movement per degree": np.array((0.079 * pi) / 360, dtype=np.longdouble),
             "velocity": np.array(0.1),  # m/s
-            "sim_dt": np.array(0.1),  # dt for the simulation in seconds (not sure if needed)
-            "lf": 0,  # f ront distance from center of mass of the car
+            "sim_dt": np.array(0.01),  # dt for the simulation in seconds (not sure if needed)
+            "lf": 0,  # front distance from center of mass of the car
             "lb": 0,  # Back distance from center of mass of the car
             "lw": 0,  # half of the width of the vehicle
             "prev_phi": 0,
@@ -123,7 +124,7 @@ class DumbPredictor(Predictor):
             new_prediction = self.drive_predict_no_steering(curr_state)
         else:
             logger.info(f"Predicting for steering angle of {steering}")
-            new_prediction = self.drive_predict_steering(curr_state=curr_state,steering_angle=steering)
+            new_prediction = self.drive_predict_steering(curr_state=curr_state, steering_angle=steering)
 
         logger.info("End of steering prediction")
         return new_prediction
@@ -183,45 +184,53 @@ class DumbPredictor(Predictor):
         temp_state = curr_state.iloc[-1:]
 
         new_state = pd.DataFrame(columns=curr_state.columns)
-        for i in range(0,101):
+        for i in range(0, 101):
             temp_state["z_pos"] = new_z[i]
             temp_state["x_pos"] = new_x[i]
             new_state = new_state.append(temp_state, ignore_index=True)
 
         return new_state
 
-    def drive_predict_steering(self,curr_state, steering_angle, vel):
+    def drive_predict_steering(self, curr_state, steering_angle):
         distance_to_travel = self.properties.get("movement per degree") * np.array(float(self.inst_splt[3]),
                                                                                    dtype=np.longdouble)
 
-        #Paulwessen's properties
+        # Paulwessen's properties
         lf = self.properties.get("lf")
         lb = self.properties.get("lb")
         lw = self.properties.get("lw")
-        vel = self.properties.get("velocity")
+        v = self.properties.get("velocity")
         sim_dt = self.properties.get("sim_dt")
         prev_phi = self.properties.get("phi")
 
-
         # Calculate heading of the vehicle.
         beta = np.arctan(lb * np.tan(steering_angle) / (lb + lf))
-        phi = prev_phi + vel * sim_dt * np.cos(beta) * np.tan(steering_angle) / (lb + lf)
-        self.properties["phi"] = phi
 
         new_z = curr_state["z_pos"].iloc[-1:]
         new_x = curr_state["x_pos"].iloc[-1:]
         y_rot = np.deg2rad(curr_state["y_rot"].iloc[-1:])
 
-        for i in range(sim_dt):
+        x_changes = []
+        y_changes = []
+        yaw_changes = []
+
+        dist_left = distance_to_travel
+        for i in range(math.ceil(distance_to_travel / (v * sim_dt))):
+            if dist_left - v*sim_dt <= 0:
+                sim_dt = dist_left / v
+                dist_left = 0
+            else:
+                dist_left -= v*sim_dt
 
             # Calculate vehicles's position.
-            new_z =  new_z + vel * sim_dt * np.cos(beta + phi) # may actually be x (x-axis in 2d)
-            new_x = new_x + vel * sim_dt * np.sin(beta + phi) # may actually be z (y-axis in 2d) (i think)
+            phi = prev_phi + v * sim_dt * np.cos(beta) * np.tan(steering_angle) / (lb + lf)
+            new_x = new_x + v * sim_dt * np.cos(beta + phi)  # may actually be x (x-axis in 2d)
+            new_x = new_x + v * sim_dt * np.sin(beta + phi)  # may actually be z (y-axis in 2d) (i think)
 
-
+        self.properties["phi"] = phi
 
         new_state = pd.DataFrame(columns=curr_state.columns)
-        #add new_states
+        # add new_states
 
         return new_state
 
