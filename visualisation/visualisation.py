@@ -69,9 +69,21 @@ def new_position(data_packet: list):
         for i, [key, val] in enumerate(menu.__dict__.items()):
             menu_fields[i].text = f"{key}: {val:.2f}"
 
+    x_pos = world_state["_pos"][0] * 100
+    y_pos = world_state["_pos"][1] * 100
+    z_pos = world_state["_pos"][2] * 100
+
+    position = [x_pos, y_pos, z_pos]
+
+    x_rot = world_state["_rot"][0]
+    y_rot = world_state["_rot"][1]
+    z_rot = world_state["_rot"][2]
+
+    rot = [x_rot, y_rot, z_rot]
+
     # Update the agent
-    agents[agent_num].move_to(menu.get_pos(), environment.origin_offset)
-    agents[agent_num].rotate_to(menu.get_rot())
+    agents[agent_num].move_to(position, environment.origin_offset)
+    agents[agent_num].rotate_to(rot)
 
 
 def update():

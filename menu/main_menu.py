@@ -76,45 +76,28 @@ class MainMenu:
 
     def play_offline(self):
         """Functionality for launching offline play"""
-        self.controller = Controller(agent_count=2)
-
-        # while self.filename is None:
-        #     self.filename = fd.askopenfilename()
-        #
-        # while self.dumb_predictor is None:
-        #     self.dumb_predictor = fd.askopenfilename()
-        #
-        # while self.advanced_predictor is None:
-        #     self.filename = fd.askopenfilename()
+        self.controller = Controller(agent_count=3)
 
         self.filename = "res/logs/motor data, lego version.csv"
-        self.dumb_predictor = "res/prediction_dumps/prediction_dump (21-05-2023_13-33-07).csv"
+        self.dumb_predictor = "res/prediction_dumps/dumb.csv"
+        self.advanced_predictor = "res/prediction_dumps/advanced.csv"
 
         # create threads
-        # thread_controller = threading.Thread(target=self.start_offline_controller)
-        # thread_dumb_predictor = threading.Thread(target=self.start_dumb_predictor)
-        # thread_vis = threading.Thread(target=self.start_offline_vis)
+        thread_vis = threading.Thread(target=self.start_offline_vis)
 
         # start threads
-        # thread_controller.start()
-        # thread_dumb_predictor.start()
-        # thread_vis.start()
-
-        # end threads
-        # thread_controller.join()
-        # thread_dumb_predictor.join()
-        # thread_vis.join()
+        thread_vis.start()
 
         sleep(2)
 
         self.controller.load_data(self.filename)
-        self.controller.open_prediction(self.dumb_predictor)
+        self.controller.open_dumb_prediction(self.dumb_predictor)
+        self.controller.open_adv_prediction(self.advanced_predictor)
 
         while self.controller.data_remaining():
-            print(f"Basic: {self.controller.current_row_primary}/{len(self.controller.current_data)}, "
-                  f"Dumb: {self.controller.dumb_predictor_row}/{len(self.controller.predicted_state)}")
             self.controller.update(agent_num=0)
-            self.controller.visualise_dataframe(agent_num=1)
+            self.controller.visualise_dumb_dataframe(agent_num=1)
+            self.controller.visualise_adv_dataframe(agent_num=2)
             sleep(0.1)
 
         self.filename = None
@@ -202,7 +185,7 @@ class MainMenu:
         sleep(2)
 
         # run the controller until we reach the end of the dataset
-        while self.controller.visualise_dataframe(agent_num=0):
+        while self.controller.visualise_dumb_dataframe(agent_num=0):
             sleep(0.1)
 
     def start_dumb_predictor(self):
@@ -211,7 +194,7 @@ class MainMenu:
         self.controller.open_prediction(self.dumb_predictor)
 
         # run the controller until we reach the end of the dataset
-        while self.controller.visualise_dataframe(agent_num=1):
+        while self.controller.visualise_dumb_dataframe(agent_num=1):
             sleep(0.1)
 
     def load_prediction(self):
