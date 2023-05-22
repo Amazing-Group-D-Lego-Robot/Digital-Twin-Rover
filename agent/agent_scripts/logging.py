@@ -16,9 +16,13 @@ timer = Timer()
 wait_until = None
 time_last_instruction = time.ticks_ms()
 
-STEERING_PERMITTED_OFFSET = 10
-DATA_FILEPATH = "sensor_log.txt"
-INSTRUCTION_FILEPATH = "instruction_set.txt"
+STEERING_PERMITTED_OFFSET = 100000 
+INSTRUCTION_FILEPATH = "DEMO.txt"
+DATA_FILEPATH = "DATA.txt"
+INTERRUPTS_ON = False
+MAX_LIM = 31
+MAX_EITHER_SIDE = 31
+DRIVING_SPEED = 10
 
 front_color = ColorSensor('B')
 bottom_color = ColorSensor('D')
@@ -44,6 +48,11 @@ def interpret_instruction(instruction):
         operand = instruction_code[1:]
         if opcode == "MOTOR":
                 handle_motor(operand[0], operand[1], operand[2])
+                # BODGE - if steering - attempt two more times to ensure full lock
+                if operand[0] == 'A':
+                        handle_motor(operand[0], operand[1], int(operand[2])-1)
+                        handle_motor(operand[0], operand[1], int(operand[2])+1)
+                        handle_motor(operand[0], operand[1], operand[2])
         elif opcode == "WAIT":
                 handle_wait(operand[0])
         elif opcode == "LIGHT_DISTANCE":
@@ -70,16 +79,24 @@ def handle_motor(index, speed, change_in_angle):
         change_in_angle = -int(change_in_angle)
         speed = int(speed)
         if index == "A":
-                speed = 1
+                speed = 50
+                #if change_in_angle > 0:
+                #        change_in_angle = MAX_LIM
+                #else:
+                #        change_in_angle = -MAX_LIM
                 motor = steering_motor
 
                 print("change in angle:", change_in_angle)
-                steering_motor_target_angle = clamp(steering_motor.get_degrees_counted()+change_in_angle, steering_center_angle-STEERING_PERMITTED_OFFSET, steering_center_angle+STEERING_PERMITTED_OFFSET)
+                steering_motor_target_angle = clamp(steering_motor.get_degrees_counted()+change_in_angle, steering_center_angle-STEERING_PERMITTED_OFFSET, steering_center_angle+STEERING_PERMITTED_OFFSET)                
                 if change_in_angle > 0:
                         steering_motor_is_forward = True
+                        # IMPORTANT - WE'RE NOW HARD CODING TO HARD LEFT HARD RIGHT
+                        steering_motor_target_angle = steering_center_angle 
                 else:
                         speed = - speed
                         steering_motor_is_forward = False
+                        # IMPORTANT - WE'RE NOW HARD CODING TO HARD LEFT HARD RIGHT
+                        steering_motor_target_angle = steering_center_angle - MAX_EITHER_SIDE
                 print("Centre", steering_center_angle)
                 print("set new steering motor target to", steering_motor_target_angle)
         elif index == "C":
@@ -90,6 +107,11 @@ def handle_motor(index, speed, change_in_angle):
                         driving_motor_is_forward = True
                 else:
                         speed = - speed
+                # UNCOMMENT FOR MAX SPEED
+                if speed > 0:
+                        speed = DRIVING_SPEED
+                else:
+                        speed = -DRIVING_SPEED
                         driving_motor_is_forward = False
                 print("set new driving motor target to", driving_motor_target_angle)
         else:
@@ -192,7 +214,7 @@ def is_instruction_completed():
                         return False
                 else:
                         wait_until = None
-        
+
         if driving_motor_is_forward:
                 if driving_motor_value < driving_motor_target_angle:
                         return False
@@ -211,14 +233,14 @@ def is_instruction_completed():
 
 
 def color_interrupt(color_sensor):
-        return color_sensor.get_color() == 'black'
+        return color_sensor.get_color() == 'white' and INTERRUPTS_ON
 
 def distance_interrupt(distance_sensor):
         distance = distance_sensor.get_distance_cm()
         # distance is sometimes None when past 200cm
         if (distance == None):
                 return False
-        return distance<5
+        return distance<5 and INTERRUPTS_ON
 
 def check_interrupt():
         if color_interrupt(bottom_color):
@@ -228,7 +250,7 @@ def check_interrupt():
         else:
                 interrupt_string = None
         return interrupt_string
-                
+
 
 print("start")
 print(wait_until)
@@ -245,10 +267,11 @@ with open(DATA_FILEPATH, "w") as data_file:
                         while not is_instruction_completed() and stop_agent == False:
                                 #print("measured:", driving_motor.get_degrees_counted(), "/", driving_motor_target_angle)
                                 #print("measured:", steering_motor.get_degrees_counted(), "/", steering_motor_target_angle)
-                                interrupt_string = check_interrupt() 
+                                interrupt_string = check_interrupt()
                                 log_sensor_data(data_file)
                                 if interrupt_string != None:
-                                        log_interrupt(interrupt_string)
+                                        log_interrupt(data_file, interrupt_string)
+                                        print(interrupt_string)
                                         stop_agent = True
                         driving_motor.stop()
                         steering_motor.stop()
@@ -258,7 +281,7 @@ with open(DATA_FILEPATH, "w") as data_file:
                         if stop_agent:
                                 print("STOPPING!!!")
                                 break
-                        
+
 
 
 
