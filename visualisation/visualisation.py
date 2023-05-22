@@ -38,7 +38,7 @@ def agent_number(num: int):
         agents.append(
             Agent(model="legotest",
                   texture="legotest_tex",
-                  scale=50,
+                  scale=100,
                   shader=basic_lighting_shader,
                   position=agent_offset,
                   )
