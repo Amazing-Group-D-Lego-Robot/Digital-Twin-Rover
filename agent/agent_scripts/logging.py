@@ -16,7 +16,7 @@ timer = Timer()
 wait_until = None
 time_last_instruction = time.ticks_ms()
 
-STEERING_PERMITTED_OFFSET = 100000 
+STEERING_PERMITTED_OFFSET = 100000
 INSTRUCTION_FILEPATH = "DEMO.txt"
 DATA_FILEPATH = "DATA.txt"
 INTERRUPTS_ON = True
@@ -99,11 +99,11 @@ def handle_motor(index, speed, change_in_angle):
                 motor = steering_motor
 
                 print("change in angle:", change_in_angle)
-                steering_motor_target_angle = clamp(steering_motor.get_degrees_counted()+change_in_angle, steering_center_angle-STEERING_PERMITTED_OFFSET, steering_center_angle+STEERING_PERMITTED_OFFSET)                
+                steering_motor_target_angle = clamp(steering_motor.get_degrees_counted()+change_in_angle, steering_center_angle-STEERING_PERMITTED_OFFSET, steering_center_angle+STEERING_PERMITTED_OFFSET)
                 if change_in_angle > 0:
                         steering_motor_is_forward = True
                         # IMPORTANT - WE'RE NOW HARD CODING TO HARD LEFT HARD RIGHT
-                        steering_motor_target_angle = steering_center_angle 
+                        steering_motor_target_angle = steering_center_angle
                 else:
                         speed = - speed
                         steering_motor_is_forward = False
@@ -258,6 +258,7 @@ def distance_interrupt(distance_sensor):
         return distance<5 and INTERRUPTS_ON
 
 def check_interrupt():
+        # NOTE - Comment out driving_motor.stop() and set interrupt string to None in order for a specific interrupt to be ignored.
         if bottom_color_interrupt(bottom_color):
                 #driving_motor.stop()
                 handle_beep(58, 1)
@@ -271,9 +272,6 @@ def check_interrupt():
                 interrupt_string = 'Front Colour'
         elif distance_interrupt(distance_sensor):
                 driving_motor.stop()
-                #handle_beep(65, 1)
-                #handle_beep(55, 1)
-                #handle_beep(65, 1)
                 play_song(imperial_march)
                 interrupt_string = 'Distance'
         else:
@@ -310,9 +308,6 @@ with open(DATA_FILEPATH, "w") as data_file:
                         if stop_agent:
                                 print("STOPPING!!!")
                                 break
-
-
-
 
 
 print("done: ",timer.now())
