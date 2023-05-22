@@ -19,7 +19,7 @@ time_last_instruction = time.ticks_ms()
 STEERING_PERMITTED_OFFSET = 100000 
 INSTRUCTION_FILEPATH = "DEMO.txt"
 DATA_FILEPATH = "DATA.txt"
-INTERRUPTS_ON = False
+INTERRUPTS_ON = True
 MAX_LIM = 31
 MAX_EITHER_SIDE = 31
 DRIVING_SPEED = 10
@@ -41,6 +41,18 @@ driving_motor_target_angle = driving_center_angle
 
 steering_motor_is_forward = True
 driving_motor_is_forward = True
+
+# Define the Imperial March melody
+imperial_march = [
+        (60, 1), (60, 1), (60, 1), (56, 0.75), (63, 0.25),
+        (60, 1), (56, 0.75), (63, 0.25), (60, 1)
+    ]
+
+def play_song(melody):
+    # Play each note in the melody
+    for note, duration in melody:
+        primeHub.speaker.beep(note, float(duration))
+        time.sleep(duration / 10)# Delay between notes
 
 def interpret_instruction(instruction):
         instruction_code = instruction.split(" ")
@@ -232,8 +244,11 @@ def is_instruction_completed():
         return True
 
 
-def color_interrupt(color_sensor):
+def bottom_color_interrupt(color_sensor):
         return color_sensor.get_color() == 'white' and INTERRUPTS_ON
+
+def front_color_interrupt(color_sensor):
+        return color_sensor.get_color() == 'yellow' and INTERRUPTS_ON
 
 def distance_interrupt(distance_sensor):
         distance = distance_sensor.get_distance_cm()
@@ -243,10 +258,24 @@ def distance_interrupt(distance_sensor):
         return distance<5 and INTERRUPTS_ON
 
 def check_interrupt():
-        if color_interrupt(bottom_color):
-                interrupt_string ="Colour"
+        if bottom_color_interrupt(bottom_color):
+                #driving_motor.stop()
+                handle_beep(58, 1)
+                handle_beep(62, 1)
+                interrupt_string = 'Bottom Colour'
+                interrupt_string = None
+        elif front_color_interrupt(front_color):
+                driving_motor.stop()
+                handle_beep(62, 1)
+                handle_beep(58, 1)
+                interrupt_string = 'Front Colour'
         elif distance_interrupt(distance_sensor):
-                interrupt_string ="Distance"
+                driving_motor.stop()
+                #handle_beep(65, 1)
+                #handle_beep(55, 1)
+                #handle_beep(65, 1)
+                play_song(imperial_march)
+                interrupt_string = 'Distance'
         else:
                 interrupt_string = None
         return interrupt_string
