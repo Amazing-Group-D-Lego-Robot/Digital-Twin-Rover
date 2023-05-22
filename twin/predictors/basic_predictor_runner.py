@@ -3,7 +3,7 @@ from controller.input_data_parser import parse_input_data
 from twin.twin_environment import TwinEnvironment
 
 test = BasicPredictor()
-str = open('test.txt', 'r').read()
+str = open('../../res/rover_readings/reading_three_instructions.txt', 'r').read()
 parsed_data = parse_input_data(str)
 current_dict = parsed_data[0]
 instruction = current_dict.get("instruction")

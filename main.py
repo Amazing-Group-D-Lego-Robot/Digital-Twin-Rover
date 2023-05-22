@@ -5,7 +5,7 @@ import logging
 
 def main():
     # Logging handler
-    log_level = logging.DEBUG
+    log_level = logging.INFO
 
     # Instantiate logger
     logger = logging.getLogger(__name__)

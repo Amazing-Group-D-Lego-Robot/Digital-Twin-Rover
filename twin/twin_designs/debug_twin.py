@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import pandas as pd
 
@@ -9,7 +11,7 @@ from twin.sensors.force_sensor import ForceSensor
 from twin.twin_environment import TwinEnvironment
 from twin.twin_model import TwinModel
 
-
+logger = logging.getLogger(__name__)
 # TODO: add more properties for things like size, display model, etc
 class DebugTwinModel(TwinModel):
     def __init__(self):
