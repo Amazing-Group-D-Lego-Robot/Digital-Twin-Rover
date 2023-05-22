@@ -22,13 +22,13 @@ class DumbPredictor(Predictor):
 
         # Possible list of instruction
         self.instruction_switch = {
-            "I:WAIT": self._predict_wait,
-            "I:BEEP": self._return_current,
-            "I:MOTOR": self._get_motor_prediction,
+            "WAIT": self._predict_wait,
+            "BEEP": self._return_current,
+            "MOTOR": self._get_motor_prediction,
             # TODO: Implement functions for these
-            "I:LIGHT_DISTANCE": self._return_current,
-            "I:LIGHT_MATRIX": self._return_current,
-            "I:LIGHT_STATUS": self._return_current,
+            "LIGHT_DISTANCE": self._return_current,
+            "LIGHT_MATRIX": self._return_current,
+            "LIGHT_STATUS": self._return_current,
         }
 
         self.previous_state = prev_state
@@ -63,6 +63,9 @@ class DumbPredictor(Predictor):
         :param current_state: Dataframe of sensors from teh current state
         :return: the predicted instruction from the next state
         """
+        if self.previous_state is None:
+            self.previous_state = current_state
+
         logging.info(f"Starting predict instruction for {instruction}")
         if current_state is None:
             raise TypeError("current_state cannot be None")
@@ -76,12 +79,14 @@ class DumbPredictor(Predictor):
         # retrieve correct function from dictionary
         decision_function = self.instruction_switch.get(inst_type)
 
+        print(str(decision_function))
         # get Dataframe result
         result = decision_function()
 
         # keep last instruction REDUNDANT BUT COULD BE USEFUL
         self.previous_inst_splt = self.inst_splt
 
+        print(result)
         # Makes sure wait conditions or blank predictions aren't added to the previous reading
         if current_state.shape[0] == 0:
             return result
@@ -114,7 +119,7 @@ class DumbPredictor(Predictor):
         logger.info(self.state.columns)
 
         curr_state = self.state.iloc[-1:]
-        steering = np.array(curr_state["steering_pos"])
+        steering = np.deg2rad(np.array(curr_state["steering_pos"]).astype(float))
         logger.info(f"Steering in degrees {curr_state['steering_pos']} \t steering in radians {steering}")
 
         # get the turning radius
@@ -157,8 +162,9 @@ class DumbPredictor(Predictor):
             z_dist = distance_to_travel * np.cos(y_rot)
             x_dist = distance_to_travel * np.sin(y_rot)
 
-        increment_z_distance = (z_dist / 100)[0]
-        increment_x_distance = (x_dist / 100)[0]
+        logger.info(f"zdist {z_dist}")
+        increment_z_distance = (z_dist / 100)#[0]
+        increment_x_distance = (x_dist / 100)#[0]
 
         logger.info(f"increment z :{increment_z_distance}\n increment x: {increment_x_distance}")
 
@@ -244,7 +250,6 @@ class DumbPredictor(Predictor):
             temp_state["y_rot"] = yaw_changes[i]
             new_state = new_state.append(temp_state, ignore_index=True)
 
-
         return new_state
 
     def _steering_prediction(self) -> pd.DataFrame:
@@ -260,9 +265,10 @@ class DumbPredictor(Predictor):
 
         # get last row
         row = self.state.iloc[-1:]
+        print(row.columns)
 
         angle_inst = int(self.inst_splt[3])
-        current_pos = int(row["steering_motor_position"][-1:])
+        current_pos = int(row["steering_pos"][-1:])
         new_pos = current_pos + angle_inst
 
         position_changer = _get_position_change_steering(current_pos, new_pos)
