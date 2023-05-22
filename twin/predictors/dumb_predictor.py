@@ -195,13 +195,15 @@ class DumbPredictor(Predictor):
         distance_to_travel = self.properties.get("movement per degree") * np.array(float(self.inst_splt[3]),
                                                                                    dtype=np.longdouble)
 
+        steering_angle = np.deg2rad(steering_angle)
+
         # Paulwessen's properties
         lf = self.properties.get("lf")
         lb = self.properties.get("lb")
         lw = self.properties.get("lw")
         v = self.properties.get("velocity")
         sim_dt = self.properties.get("sim_dt")
-        prev_phi = self.properties.get("phi")
+        prev_phi = self.properties.get("phi") # get yaw from dataframe
 
         # Calculate heading of the vehicle.
         beta = np.arctan(lb * np.tan(steering_angle) / (lb + lf))
@@ -211,9 +213,9 @@ class DumbPredictor(Predictor):
         y_rot = np.deg2rad(curr_state["y_rot"].iloc[-1:])
 
         x_changes = []
-        y_changes = []
+        z_changes = []
         yaw_changes = []
-
+        prev_phi = self.properties.get["phi"] #change to yaw offset?
         dist_left = distance_to_travel
         for i in range(math.ceil(distance_to_travel / (v * sim_dt))):
             if dist_left - v*sim_dt <= 0:
@@ -222,15 +224,26 @@ class DumbPredictor(Predictor):
             else:
                 dist_left -= v*sim_dt
 
-            # Calculate vehicles's position.
+            # Calculate vehicle's position.
             phi = prev_phi + v * sim_dt * np.cos(beta) * np.tan(steering_angle) / (lb + lf)
             new_x = new_x + v * sim_dt * np.cos(beta + phi)  # may actually be x (x-axis in 2d)
-            new_x = new_x + v * sim_dt * np.sin(beta + phi)  # may actually be z (y-axis in 2d) (i think)
+            new_z = new_z + v * sim_dt * np.sin(beta + phi)  # may actually be z (y-axis in 2d) (i think)
+            yaw_changes.append(phi)
+            x_changes.append(new_x)
+            z_changes.append(new_z)
 
         self.properties["phi"] = phi
 
+
+        temp_state = curr_state.iloc[-1:]
+
         new_state = pd.DataFrame(columns=curr_state.columns)
-        # add new_states
+        for i in range(len(new_x)):
+            temp_state["z_pos"] = z_changes[i]
+            temp_state["x_pos"] = x_changes[i]
+            temp_state["y_rot"] = yaw_changes[i]
+            new_state = new_state.append(temp_state, ignore_index=True)
+
 
         return new_state
 
