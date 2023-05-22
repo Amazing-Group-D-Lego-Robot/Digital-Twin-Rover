@@ -48,11 +48,19 @@ imperial_march = [
         (60, 1), (56, 0.75), (63, 0.25), (60, 1)
     ]
 
+tokyo_drift = [
+        (80, 0.5), (80, .5), (80, .5), (80, .5),
+        (80, .375), (81, .375), (85, .25), (80, .5), (80, .5),
+        (80, 0.5), (80, .5), (80, .5), (80, .5),
+        (80, .375), (81, .375), (85, .25), (80, .5), (80, .5),
+        (80, 0.5), (80, .5), (80, .5), (80, .5),
+        (80, .375), (81, .375), (85, .25), (80, .5), (80, .5)
+]
+
 def play_song(melody):
     # Play each note in the melody
     for note, duration in melody:
         primeHub.speaker.beep(note, float(duration))
-        time.sleep(duration / 10)# Delay between notes
 
 def interpret_instruction(instruction):
         instruction_code = instruction.split(" ")
@@ -260,19 +268,17 @@ def distance_interrupt(distance_sensor):
 def check_interrupt():
         # NOTE - Comment out driving_motor.stop() and set interrupt string to None in order for a specific interrupt to be ignored.
         if bottom_color_interrupt(bottom_color):
-                #driving_motor.stop()
+                driving_motor.stop()
                 handle_beep(58, 1)
                 handle_beep(62, 1)
                 interrupt_string = 'Bottom Colour'
-                interrupt_string = None
         elif front_color_interrupt(front_color):
                 driving_motor.stop()
-                handle_beep(62, 1)
-                handle_beep(58, 1)
+                play_song(imperial_march)
                 interrupt_string = 'Front Colour'
         elif distance_interrupt(distance_sensor):
                 driving_motor.stop()
-                play_song(imperial_march)
+                play_song(tokyo_drift)
                 interrupt_string = 'Distance'
         else:
                 interrupt_string = None
