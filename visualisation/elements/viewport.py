@@ -41,3 +41,9 @@ class Viewport(FirstPersonController):
 
         if key == 'k':
             self.position -= (0, 1, 0)
+
+        if key == 'o':
+            self.position += (0, 10, 0)
+
+        if key == 'l':
+            self.position -= (0, 10, 0)

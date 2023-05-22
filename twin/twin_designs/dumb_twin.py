@@ -39,6 +39,9 @@ class DumbTwinModel(TwinModel):
             AccelerationSensor("Acc", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
             GyroSensor("Gyro", direction=np.array([0, 0, 1]), position=np.array([0, 0, 0])),
 
+            Sensor("driving_motor_position"),
+            Sensor("steering_motor_position"),
+
             # General sensors -> sensors that only take on integer value as input
             Sensor("pitch"),
             Sensor("roll"),

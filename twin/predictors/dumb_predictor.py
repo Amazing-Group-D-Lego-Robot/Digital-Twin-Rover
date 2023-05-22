@@ -19,13 +19,13 @@ class DumbPredictor(Predictor):
 
         # Possible list of instruction
         self.instruction_switch = {
-            "I:WAIT": self._predict_wait,
-            "I:BEEP": self._return_current,
-            "I:MOTOR": self._get_motor_prediction,
+            "WAIT": self._predict_wait,
+            "BEEP": self._return_current,
+            "MOTOR": self._get_motor_prediction,
             # TODO: Implement functions for these
-            "I:LIGHT_DISTANCE": self._return_current,
-            "I:LIGHT_MATRIX": self._return_current,
-            "I:LIGHT_STATUS": self._return_current,
+            "LIGHT_DISTANCE": self._return_current,
+            "LIGHT_MATRIX": self._return_current,
+            "LIGHT_STATUS": self._return_current,
         }
         self.previous_state = prev_state
         self.previous_inst_splt = prev_inst
@@ -49,12 +49,20 @@ class DumbPredictor(Predictor):
         self.inst_splt = instruction.split(" ")  # splits instruction into [instruction, opcode(s) ...]
         inst_type = self.inst_splt[0]  # get just instruction type
 
+        print(current_state)
+
         self.state = current_state
+        if self.previous_state is None:
+            self.previous_state = self.state.copy()
+
         # retrieve correct function from dictionary
         decision_function = self.instruction_switch.get(inst_type)
 
+        #result = None
+
         # get Dataframe result
-        result = decision_function()
+        if decision_function is not None:
+            result = decision_function()
 
         # keep last instruction REDUNDANT BUT COULD BE USEFUL
         self.previous_inst_splt = self.inst_splt
@@ -121,6 +129,7 @@ class DumbPredictor(Predictor):
         row = self.state.iloc[-1:]
 
         angle_inst = int(self.inst_splt[3])
+        print(row["steering_motor_position"][-1:])
         current_pos = int(row["steering_motor_position"][-1:])
         new_pos = current_pos + angle_inst
 

@@ -2,13 +2,14 @@
 from copy import deepcopy
 
 from twin.twin_designs.debug_twin import DebugTwinModel
+from twin.twin_designs.dumb_twin import DumbTwinModel
 from twin.twin_environment import TwinEnvironment
 
 
 class TwinSystem:
     def __init__(self):
         self.environment = TwinEnvironment()
-        self.twin = DebugTwinModel()
+        self.twin = DumbTwinModel()
 
     def change_instruction(self, instruction: str):
         """

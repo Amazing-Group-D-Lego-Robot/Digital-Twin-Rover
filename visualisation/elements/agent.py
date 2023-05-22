@@ -13,13 +13,15 @@ class Agent(Entity):
     def add_sensor(self, offset: Vec3, direction: Vec3 = Vec3(0, 0, 1)):
         self.sensor_rays.append(SensorRay(self, offset, direction))
 
-    def move_to(self, pos: list):
+    def move_to(self, pos: list, offset: list):
         """
         Move the agent to a particular [x, y, z] position
+        :param offset:
         :param pos:
         :return:
         """
-        self.animate_position(pos, duration=0.1)
+        new_pos = [pos[0] + offset[0], pos[1], pos[2] + offset[1]]
+        self.animate_position(new_pos, duration=0.1)
 
     def rotate_to(self, rot: list):
         """
