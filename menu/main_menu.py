@@ -35,7 +35,9 @@ class MainMenu:
 
         # Create the buttons
         self.buttons = [tk.Button(text="Generate Environment", command=self.generate_environment, font="Helvetica"),
-                        tk.Button(text="DEMO", command=self.play_offline, font="Helvetica"),
+                        tk.Button(text="DEMO Stage 1", command=self.demo_stage_1, font="Helvetica"),
+                        tk.Button(text="DEMO Stage 2", command=self.demo_stage_2, font="Helvetica"),
+                        tk.Button(text="DEMO Stage 3", command=self.demo_stage_3, font="Helvetica"),
                         tk.Button(text="Play Live Scenario", command=self.play_live, font="Helvetica"),
                         tk.Button(text="Generate Prediction (only dump)", command=self.generate_prediction,
                                   font="Helvetica"),
@@ -74,13 +76,30 @@ class MainMenu:
         """Functionality for launching 'live' bot"""
         tk.messagebox.showinfo("Unavailable Menu Option", "Sorry this version is still in development")
 
+    def demo_stage_1(self):
+        self.filename = "res/logs/demo1.txt" # Charlie predictor
+        self.dumb_predictor = "res/prediction_dumps/will-startastart.csv"
+        self.advanced_predictor = "res/prediction_dumps/advanced.csv" # Charlie predictor
+
+        self.play_offline()
+
+    def demo_stage_2(self):
+        self.filename = "res/logs/demo2.txt"
+        self.dumb_predictor = "res/prediction_dumps/will-startbc.csv"
+        self.advanced_predictor = "res/prediction_dumps/advanced.csv" # Charlie predictor
+
+        self.play_offline()
+
+    def demo_stage_3(self):
+        self.filename = "res/logs/demo3.txt"
+        self.dumb_predictor = "res/prediction_dumps/will-full.csv"
+        self.advanced_predictor = "res/prediction_dumps/advanced.csv" # Charlie predictor
+
+        self.play_offline()
+
     def play_offline(self):
         """Functionality for launching offline play"""
         self.controller = Controller(agent_count=3)
-
-        self.filename = "res/logs/demo.txt"
-        self.dumb_predictor = "res/prediction_dumps/dumb.csv"
-        self.advanced_predictor = "res/prediction_dumps/advanced.csv"
 
         # create threads
         thread_vis = threading.Thread(target=self.start_offline_vis)
